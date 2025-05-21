@@ -38,7 +38,7 @@ Based on
 """
 import time
 
-import const
+from micropython import const
 
 from i2c_helpers import CBits, RegisterStruct
 
