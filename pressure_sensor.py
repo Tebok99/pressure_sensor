@@ -42,11 +42,11 @@ def set_mode(sensor, mode):
 # 센서 데이터 읽기 함수
 def read_sensor(sensor):
     if sensor == 'bmp280':
-        return bmp280.pressure(), bmp280.temperature()
+        return bmp280.measurements['p'], bmp280.measurements['t']
     elif sensor == 'dps310':
-        return dps310.pressure(), dps310.temperature()
+        return dps310.pressure, dps310.temperature
     elif sensor == 'bmp388':
-        return bmp388.pressure(), bmp388.temperature()
+        return bmp388.pressure, bmp388.temperature
     return None
 
 
