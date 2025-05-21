@@ -29,7 +29,7 @@ import struct
 import time
 
 from micropython import const
-from micropython_dps310.i2c_helpers import CBits, RegisterStruct
+from dps310.i2c_helpers import CBits, RegisterStruct
 
 __version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/jposada202020/MicroPython_DPS310.git"
