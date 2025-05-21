@@ -2,7 +2,7 @@
 # 라즈베리파이 피코2에서 DPS310, BMP388, BMP280 센서를 테스트하는 Micropython 코드
 import time
 
-from machine import Pin, I2C
+from machine import Pin, I2C, SoftI2C
 
 # 센서 모듈 임포트 (실제 라이브러리 또는 커스텀 모듈 필요)
 from bmp280.bmp280 import BMP280  # pico-bmp280 라이브러리
@@ -11,12 +11,12 @@ from dps310.dps310 import DPS310  # 커스텀 또는 조정된 라이브러리 �
 
 # I2C 버스 초기화
 i2c0 = I2C(0, sda=Pin(0), scl=Pin(1))  # DPS310, BMP280용
-i2c1 = I2C(1, sda=Pin(4), scl=Pin(5))  # BMP388용
+i2c1 = SoftI2C(sda=Pin(4), scl=Pin(5))  # BMP388용
 
 # 센서 초기화
-bmp280 = BMP280(i2c0, address=0x76)
-dps310 = DPS310(i2c0, address=0x77)
-bmp388 = BMP390(i2c1, address=0x77)
+bmp280 = BMP280(i2c=i2c0, address=0x76)
+dps310 = DPS310(i2c=i2c0, address=0x77)
+bmp388 = BMP390(i2c=i2c1, address=0x77)
 
 # 모드 정의
 low_power_mode = {
