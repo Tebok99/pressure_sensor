@@ -52,7 +52,7 @@ class DPS310:
         return pressure
 
 # 사용 예시
-i2c = I2C(scl=Pin(1), sda=Pin(0))
+i2c = I2C(0, scl=Pin(1), sda=Pin(0))
 sensor = DPS310(i2c)
 sensor.begin()
 temp = sensor.read_temperature()

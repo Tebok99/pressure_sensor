@@ -52,7 +52,7 @@ class BMP388:
         return pressure
 
 # 사용 예시
-i2c = I2C(scl=Pin(5), sda=Pin(4))
+i2c = I2C(1, scl=Pin(5), sda=Pin(4))
 sensor = BMP388(i2c)
 sensor.begin()
 temp = sensor.read_temperature()
