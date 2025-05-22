@@ -5,7 +5,7 @@ import time
 from machine import Pin, I2C, SoftI2C
 
 # 센서 모듈 임포트 (실제 라이브러리 또는 커스텀 모듈 필요)
-from bmp280.bmp280 import BMP280  # pico-bmp280 라이브러리
+from bmp280.bmp280_i2c import BMP280I2C  # pico-bmp280 라이브러리
 from bmp388.bmpxxx import BMP390  # MicroPython_BMPxxx, BMP390 호환 가정
 from dps310.dps310 import DPS310  # 커스텀 또는 조정된 라이브러리 가정
 
