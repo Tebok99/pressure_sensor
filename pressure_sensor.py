@@ -57,6 +57,7 @@ def main():
     set_mode('bmp280', low_power_mode['bmp280'])
     set_mode('dps310', low_power_mode['dps310'])
     set_mode('bmp388', low_power_mode['bmp388'])
+    time.sleep(1)
     for i in range(10):
         p1, t1 = read_sensor('bmp280')
         p2, t2 = read_sensor('dps310')
@@ -69,6 +70,7 @@ def main():
     set_mode('bmp280', normal_mode['bmp280'])
     set_mode('dps310', normal_mode['dps310'])
     set_mode('bmp388', normal_mode['bmp388'])
+    time.sleep(1)
     for i in range(10):
         p1, t1 = read_sensor('bmp280')
         p2, t2 = read_sensor('dps310')
