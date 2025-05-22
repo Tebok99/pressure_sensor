@@ -14,7 +14,7 @@ i2c0 = I2C(0, sda=Pin(0), scl=Pin(1))  # DPS310, BMP280용
 i2c1 = SoftI2C(sda=Pin(4), scl=Pin(5))  # BMP388용
 
 # 센서 초기화
-bmp280 = BMP280(i2c=i2c0, address=0x76)
+bmp280 = BMP280I2C(i2c=i2c0, address=0x76)
 dps310 = DPS310(i2c=i2c0, address=0x77)
 bmp388 = BMP390(i2c=i2c1, address=0x77)
 
@@ -57,6 +57,7 @@ def main():
     set_mode('bmp280', low_power_mode['bmp280'])
     set_mode('dps310', low_power_mode['dps310'])
     set_mode('bmp388', low_power_mode['bmp388'])
+    time.sleep(1)
     for i in range(10):
         p1, t1 = read_sensor('bmp280')
         p2, t2 = read_sensor('dps310')
@@ -69,6 +70,7 @@ def main():
     set_mode('bmp280', normal_mode['bmp280'])
     set_mode('dps310', normal_mode['dps310'])
     set_mode('bmp388', normal_mode['bmp388'])
+    time.sleep(1)
     for i in range(10):
         p1, t1 = read_sensor('bmp280')
         p2, t2 = read_sensor('dps310')
