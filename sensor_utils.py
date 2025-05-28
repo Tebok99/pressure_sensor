@@ -34,7 +34,7 @@ class SensorManager:
 
     def _init_dps310(self):
         try:
-            sensor = dps310.DPS310(self.i2c0, address=0x77)
+            sensor = dps310.DPS310(self.i2c0, addr=0x77)
             sensor.mode = dps310.MODE_STANDBY if self.mode=='low_power' else dps310.MODE_CONT_MEAS
             return sensor
         except:
