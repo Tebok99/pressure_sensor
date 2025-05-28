@@ -46,8 +46,8 @@ _BMP388_CMD_FIFO_FLUSH = const(0xB0)
 
 # 전력 모드
 _BMP388_POWER_SLEEP = const(0x00)
-_BMP388_POWER_NORMAL = const(0x30)  # 압력 및 온도 모두 활성화
-_BMP388_POWER_FORCED = const(0x10)  # 압력만 강제 측정
+_BMP388_POWER_NORMAL = const(0x33)  # 압력 및 온도 모두 활성화
+_BMP388_POWER_FORCED = const(0x13)  # 압력 및 온도 강제 측정
 
 # 오버샘플링 설정 (OSR)
 _BMP388_OSR_NONE = const(0x00)
@@ -210,6 +210,8 @@ class BMP388:
     def force_measure(self):
         """강제 측정 모드"""
         self._write_byte(_BMP388_PWR_CTRL, _BMP388_POWER_FORCED)
+        start = time.ticks_ms()
+
         while self.is_measuring():
             time.sleep_ms(5)
 
@@ -218,9 +220,10 @@ class BMP388:
         return (self._read_byte(_BMP388_STATUS) & 0x60) > 0  # 압력 또는 온도 변환 중인지 확인
 
     def read_raw_data(self):
-        """원시 압력 및 온도 데이터 읽기"""
         data = self._read_bytes(_BMP388_DATA_0, 6)
+        # 압력 데이터 조합 (리틀 엔디언)
         raw_pressure = (data[2] << 16) | (data[1] << 8) | data[0]
+        # 온도 데이터 조합 (리틀 엔디언)
         raw_temperature = (data[5] << 16) | (data[4] << 8) | data[3]
         return raw_pressure, raw_temperature
 
@@ -241,50 +244,34 @@ class BMP388:
         return temp_comp
 
     def compensate_pressure(self, raw_pressure, temp_comp):
-        """압력 보정 계산 (BMP388 데이터시트 기준)"""
-        # 데이터시트의 보정 공식 구현
-        P1 = self.P1
-        P2 = self.P2
-        P3 = self.P3
-        P4 = self.P4
-        P5 = self.P5
-        P6 = self.P6
-        P7 = self.P7
-        P8 = self.P8
-        P9 = self.P9
-        P10 = self.P10
-        P11 = self.P11
+        # 데이터시트 공식 적용
+        P1 = (self.P1 - 16384) / 1048576.0
+        P2 = (self.P2 - 16384) / 536870912.0
+        P3 = self.P3 / 4294967296.0
+        P4 = self.P4 / 4294967296.0
+        P5 = self.P5 / 16.0
+        P6 = self.P6 / 64.0
+        P7 = self.P7 / 256.0
+        P8 = self.P8 / 32768.0
+        P9 = self.P9 / 281474976710656.0
+        P10 = self.P10 / 281474976710656.0
+        P11 = self.P11 / 36893488147419103232.0
 
-        # 부동소수점으로 변환
-        P1 = float(P1 - 16384) / 2 ** 20
-        P2 = float(P2 - 16384) / 2 ** 29
-        P3 = float(P3) / 2 ** 32
-        P4 = float(P4) / 2 ** 37
-        P5 = float(P5) / 2 ** 3
-        P6 = float(P6) / 2 ** 6
-        P7 = float(P7) / 2 ** 8
-        P8 = float(P8) / 2 ** 15
-        P9 = float(P9) / 2 ** 48
-        P10 = float(P10) / 2 ** 48
-        P11 = float(P11) / 2 ** 65
+        # 중간 계산 값
+        partial1 = P6 * temp_comp
+        partial2 = P7 * (temp_comp ** 2)
+        partial3 = P8 * (temp_comp ** 3)
+        offset = P5 + partial1 + partial2 + partial3
 
-        out1 = P5 * temp_comp
-        out2 = P6 * temp_comp ** 2
-        out3 = P7 * temp_comp ** 3
-        offset = P4 + out1 + out2 + out3
+        partial1 = P2 * temp_comp
+        partial2 = P3 * (temp_comp ** 2)
+        partial3 = P4 * (temp_comp ** 3)
+        sensitivity = P1 + partial1 + partial2 + partial3
 
-        out1 = P2 * temp_comp
-        out2 = P3 * temp_comp ** 2
-        out3 = P1 + out1 + out2
-        sensitivity = out3 * (1 + P10 * temp_comp ** 2)
+        # 최종 압력 계산
+        compensated_pressure = ((raw_pressure * sensitivity) - offset)
 
-        out1 = raw_pressure * sensitivity
-        out2 = float(P8 + P9 * temp_comp)
-        out3 = out1 * out2
-        out4 = float(P10 * raw_pressure ** 2)
-        pressure_comp = out3 + offset + out4 + P11 * raw_pressure ** 2 * temp_comp
-
-        return pressure_comp
+        return compensated_pressure
 
     @property
     def temperature(self):
