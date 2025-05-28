@@ -6,8 +6,8 @@ def main():
     mgr = SensorManager()
 
     # 고정밀 모드 설정
-    mgr.bmp280.use_case(mgr.bmp280.BMP280_CASE_INDOOR)
-    mgr.dps310.mode = mgr.dps310.MODE_CONT_MEAS
+    mgr.bmp280.set_normal_mode()
+    mgr.dps310.set_normal_mode()
     mgr.bmp388.set_normal_mode()
 
     try:
