@@ -91,7 +91,7 @@ _BMP388_IIR_FILTER_COEFF_127 = const(0x07)
 class BMP388:
     """BMP388 디지털 압력 센서 드라이버"""
 
-    def __init__(self, i2c, addr=0x76):
+    def __init__(self, i2c, addr=0x77):
         """
         BMP388 센서 초기화
         :param i2c: I2C 인터페이스 객체
