@@ -18,18 +18,22 @@ class SensorManager:
         self.bmp388 = bmp388.BMP388(self.i2c1, addr=0x77)
 
     @staticmethod
-    def calculate_altitude(pressure_hpa):
+    def calculate_altitude(pressure_hpa, sea_level=1013.25):
+        """기압 → 고도 변환 (복소수 및 음수 방지)"""
         try:
-            # 음수 압력 방지
+            # 입력값 음수 방지
             pressure = abs(float(pressure_hpa))
 
-            # 고도 계산 시 복소수 방지
-            ratio = (pressure / 1013.25) ** 0.1903
-            if ratio > 1:
-                return 44330 * (1 - ratio)
-            return 44330 * (1 - ratio)
+            # 비율 계산 (0~1 범위 강제)
+            ratio = (pressure / sea_level) ** 0.1903
+            ratio = max(0.0, min(1.0, ratio))  # 0~1 범위 제한
+
+            # 고도 계산 및 음수 방지
+            altitude = 44330 * (1 - ratio)
+            return max(0.0, altitude)  # 최소 0m 보장
+
         except Exception as e:
-            print(f"Altitude calc error: {e}")
+            print(f"고도 계산 오류: {e}")
             return 0.0
 
     @staticmethod

@@ -165,6 +165,22 @@ class BMP388:
         if self.P9 > 32767:
             self.P9 -= 65536
 
+        # 부호 있는 8비트 정수로 변환
+        if self.T3 > 127:
+            self.T3 -= 256
+        if self.P3 > 127:
+            self.P3 -= 256
+        if self.P4 > 127:
+            self.P4 -= 256
+        if self.P7 > 127:
+            self.P7 -= 256
+        if self.P8 > 127:
+            self.P8 -= 256
+        if self.P10 > 127:
+            self.P10 -= 256
+        if self.P11 > 127:
+            self.P11 -= 256
+
     def set_low_power_mode(self):
         """저전력 모드 설정
         - 온도: 1x 오버샘플링
@@ -232,25 +248,24 @@ class BMP388:
         # 데이터시트의 보정 공식 구현
         partial_data1 = raw_temp - (self.T1 * 256.0)
         partial_data2 = partial_data1 * self.T2
-        temp_comp = partial_data1 + (partial_data2 * self.T3)
+        temp_comp = partial_data2 + (partial_data1 * partial_data1 * self.T3)
         return temp_comp
 
     def compensate_pressure(self, raw_pressure, temp_comp):
         # 데이터시트 공식 적용
-        partial_data1 = self.P6 * temp_comp
-        partial_data2 = self.P7 * (temp_comp * temp_comp)
-        partial_data3 = self.P8 * (temp_comp * temp_comp * temp_comp)
-        offset = self.P5 * 16384.0 + partial_data1 + partial_data2 + partial_data3
-
-        partial_data1 = self.P2 * temp_comp
-        partial_data2 = self.P3 * (temp_comp * temp_comp)
-        partial_data3 = self.P4 * (temp_comp * temp_comp * temp_comp)
-        sensitivity = self.P1 * 16384.0 + partial_data1 + partial_data2 + partial_data3
-
-        partial_data1 = raw_pressure - offset
-        partial_data2 = partial_data1 * sensitivity
-        pressure = partial_data2 + (self.P9 + self.P10 * temp_comp + self.P11 * (temp_comp * temp_comp)) * 1048576.0
-        pressure = pressure / 1048576.0
+        var1 = temp_comp - 64000.0
+        var2 = var1 * var1 * self.P6 / 131072.0
+        var2 = var2 + var1 * self.P5 * 2.0
+        var2 = (var2 / 4.0) + (self.P4 * 65536.0)
+        var1 = ((self.P3 * var1 * var1) / 16384.0 + self.P2 * var1) / 524288.0
+        var1 = (1.0 + var1 / 32768.0) * self.P1
+        if var1 == 0.0:
+            return 0.0  # 0으로 나누기 방지
+        pressure = 1048576.0 - raw_pressure
+        pressure = (pressure - (var2 / 4096.0)) * 6250.0 / var1
+        var1 = self.P9 * pressure * pressure / 2147483648.0
+        var2 = pressure * self.P8 / 32768.0
+        pressure = pressure + (var1 + var2 + self.P7) / 16.0
         return pressure / 100.0  # Pa -> hPa
 
     @property
