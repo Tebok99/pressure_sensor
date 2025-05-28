@@ -128,7 +128,7 @@ class BMP388:
     def _reset(self):
         """소프트 리셋 수행"""
         self._write_byte(_BMP388_CMD, _BMP388_CMD_SOFTRESET)
-        time.sleep_ms(10)  # 리셋 후 대기
+        time.sleep_ms(50)  # 리셋 후 대기
 
     def _read_calibration_data(self):
         """보정 데이터 읽기"""
@@ -266,17 +266,17 @@ class BMP388:
         var1 = self.P9 * pressure * pressure / 2147483648.0
         var2 = pressure * self.P8 / 32768.0
         pressure = pressure + (var1 + var2 + self.P7) / 16.0
-        return pressure / 100.0  # Pa -> hPa
+        return pressure
 
     @property
     def temperature(self):
         """보정된 온도 읽기 (°C)"""
         _, raw_temp = self.read_raw_data()
-        return self.compensate_temperature(raw_temp)
+        return self.compensate_temperature(raw_temp) / 100.0
 
     @property
     def pressure(self):
         """보정된 기압 읽기 (hPa)"""
         raw_press, raw_temp = self.read_raw_data()
         temp_comp = self.compensate_temperature(raw_temp)
-        return self.compensate_pressure(raw_press, temp_comp)
+        return self.compensate_pressure(raw_press, temp_comp) / 100.0  # Pa -> hPa

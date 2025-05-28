@@ -100,7 +100,7 @@ class BMP280:
     def _reset(self):
         """센서 리셋"""
         self._write_byte(_BMP280_RESET, 0xB6)
-        time.sleep_ms(10)  # 리셋 후 대기
+        time.sleep_ms(50)  # 리셋 후 대기
 
     def _read_coefficients(self):
         """보정 계수 읽기"""

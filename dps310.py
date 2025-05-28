@@ -210,13 +210,13 @@ class DPS310:
 
     def compensate_temperature(self, raw_temp):
         """온도 보정 계산"""
-        scaled_temp = float(raw_temp) / 524288.0
+        scaled_temp = float(raw_temp) / 1048576.0   # 16x 오버샘플링에 맞게 수정
         compensated_temp = self.c0 * 0.5 + self.c1 * scaled_temp
         return compensated_temp
 
     def compensate_pressure(self, raw_pressure, scaled_temp):
         """압력 보정 계산"""
-        scaled_pressure = float(raw_pressure) / 524288.0
+        scaled_pressure = float(raw_pressure) / 4194304.0   # 64x 오버샘플링에 맞게 수정
 
         compensated_pressure = (
                 self.c00 +
@@ -230,14 +230,13 @@ class DPS310:
     def temperature(self):
         """보정된 온도 읽기 (°C)"""
         raw_temp = self.read_raw_temperature()
-        return self.compensate_temperature(raw_temp)
+        return self.compensate_temperature(raw_temp) / 100.0
 
     @property
     def pressure(self):
         """보정된 기압 읽기 (hPa)"""
         raw_temp = self.read_raw_temperature()
-        scaled_temp = float(raw_temp) / 524288.0
         raw_pressure = self.read_raw_pressure()
-
-        pressure = self.compensate_pressure(raw_pressure, scaled_temp)
+        temp_comp = self.compensate_temperature(raw_temp)
+        pressure = self.compensate_pressure(raw_pressure, temp_comp)
         return pressure / 100.0  # Pa -> hPa
