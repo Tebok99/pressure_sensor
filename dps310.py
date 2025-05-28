@@ -67,6 +67,8 @@ class DPS310:
         """
         self.i2c = i2c
         self.addr = addr
+        self.temp_scale = 524288.0  # 기본값 (1x 오버샘플링)
+        self.press_scale = 524288.0  # 기본값 (1x 오버샘플링)
 
         # 센서 ID 확인
         prod_id = self._read_byte(_DPS310_PROD_ID)
@@ -171,6 +173,9 @@ class DPS310:
         # 백그라운드 모드 활성화
         self._write_byte(_DPS310_MEAS_CFG, _DPS310_BACKGROUND_MODE)
 
+        self.temp_scale = 524288.0  # 1x 오버샘플링
+        self.press_scale = 524288.0  # 1x 오버샘플링
+
         # 대기
         time.sleep_ms(50)
 
@@ -189,6 +194,8 @@ class DPS310:
         # 백그라운드 모드 활성화
         self._write_byte(_DPS310_MEAS_CFG, _DPS310_BACKGROUND_MODE)
 
+        self.temp_scale = 1048576.0  # 16x 오버샘플링
+        self.press_scale = 4194304.0  # 64x 오버샘플링
         # 대기
         time.sleep_ms(50)
 
@@ -210,13 +217,13 @@ class DPS310:
 
     def compensate_temperature(self, raw_temp):
         """온도 보정 계산"""
-        scaled_temp = float(raw_temp) / 1048576.0   # 16x 오버샘플링에 맞게 수정
+        scaled_temp = float(raw_temp) / self.temp_scale
         compensated_temp = self.c0 * 0.5 + self.c1 * scaled_temp
         return compensated_temp
 
     def compensate_pressure(self, raw_pressure, scaled_temp):
         """압력 보정 계산"""
-        scaled_pressure = float(raw_pressure) / 4194304.0   # 64x 오버샘플링에 맞게 수정
+        scaled_pressure = float(raw_pressure) / self.press_scale
 
         compensated_pressure = (
                 self.c00 +
@@ -230,13 +237,13 @@ class DPS310:
     def temperature(self):
         """보정된 온도 읽기 (°C)"""
         raw_temp = self.read_raw_temperature()
-        return self.compensate_temperature(raw_temp) / 100.0
+        return self.compensate_temperature(raw_temp)
 
     @property
     def pressure(self):
         """보정된 기압 읽기 (hPa)"""
         raw_temp = self.read_raw_temperature()
-        raw_pressure = self.read_raw_pressure()
         temp_comp = self.compensate_temperature(raw_temp)
+        raw_pressure = self.read_raw_pressure()
         pressure = self.compensate_pressure(raw_pressure, temp_comp)
         return pressure / 100.0  # Pa -> hPa
