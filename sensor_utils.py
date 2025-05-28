@@ -19,7 +19,18 @@ class SensorManager:
 
     @staticmethod
     def calculate_altitude(pressure_hpa):
-        return 44330 * (1 - (pressure_hpa / 1013.25)**0.1903)
+        try:
+            # 음수 압력 방지
+            pressure = abs(float(pressure_hpa))
+
+            # 고도 계산 시 복소수 방지
+            ratio = (pressure / 1013.25) ** 0.1903
+            if ratio > 1:
+                return 44330 * (1 - ratio)
+            return 44330 * (1 - ratio)
+        except Exception as e:
+            print(f"Altitude calc error: {e}")
+            return 0.0
 
     @staticmethod
     def format_timestamp():
