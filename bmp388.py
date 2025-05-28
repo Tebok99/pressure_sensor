@@ -230,48 +230,28 @@ class BMP388:
     def compensate_temperature(self, raw_temp):
         """온도 보정 계산 (BMP388 데이터시트 기준)"""
         # 데이터시트의 보정 공식 구현
-        T1 = self.T1
-        T2 = self.T2
-        T3 = self.T3
-
-        # Convert to float for calculation
-        T1 = float(T1) / 2 ** 8
-        T2 = float(T2) / 2 ** 30
-        T3 = float(T3) / 2 ** 48
-
-        # Calculate compensated temperature
-        temp_comp = T1 + (raw_temp - T1) * (T2 + T3 * (raw_temp - T1))
+        partial_data1 = raw_temp - (self.T1 * 256.0)
+        partial_data2 = partial_data1 * self.T2
+        temp_comp = partial_data1 + (partial_data2 * self.T3)
         return temp_comp
 
     def compensate_pressure(self, raw_pressure, temp_comp):
         # 데이터시트 공식 적용
-        P1 = self.P1
-        P2 = self.P2
-        P3 = self.P3
-        P4 = self.P4
-        P5 = self.P5
-        P6 = self.P6
-        P7 = self.P7
-        P8 = self.P8
-        P9 = self.P9
-        P10 = self.P10
-        P11 = self.P11
+        partial_data1 = self.P6 * temp_comp
+        partial_data2 = self.P7 * (temp_comp * temp_comp)
+        partial_data3 = self.P8 * (temp_comp * temp_comp * temp_comp)
+        offset = self.P5 * 16384.0 + partial_data1 + partial_data2 + partial_data3
 
-        # 중간 계산 값
-        partial1 = P6 * temp_comp
-        partial2 = P7 * (temp_comp ** 2)
-        partial3 = P8 * (temp_comp ** 3)
-        offset = P5 + partial1 + partial2 + partial3
+        partial_data1 = self.P2 * temp_comp
+        partial_data2 = self.P3 * (temp_comp * temp_comp)
+        partial_data3 = self.P4 * (temp_comp * temp_comp * temp_comp)
+        sensitivity = self.P1 * 16384.0 + partial_data1 + partial_data2 + partial_data3
 
-        partial1 = P2 * temp_comp
-        partial2 = P3 * (temp_comp ** 2)
-        partial3 = P4 * (temp_comp ** 3)
-        sensitivity = P1 + partial1 + partial2 + partial3
-
-        # 최종 압력 계산
-        compensated_pressure = ((raw_pressure * sensitivity) - offset)
-
-        return compensated_pressure
+        partial_data1 = raw_pressure - offset
+        partial_data2 = partial_data1 * sensitivity
+        pressure = partial_data2 + (self.P9 + self.P10 * temp_comp + self.P11 * (temp_comp * temp_comp)) * 1048576.0
+        pressure = pressure / 1048576.0
+        return pressure / 100.0  # Pa -> hPa
 
     @property
     def temperature(self):
@@ -284,5 +264,4 @@ class BMP388:
         """보정된 기압 읽기 (hPa)"""
         raw_press, raw_temp = self.read_raw_data()
         temp_comp = self.compensate_temperature(raw_temp)
-        press_comp = self.compensate_pressure(raw_press, temp_comp)
-        return press_comp / 100.0  # Pa -> hPa
+        return self.compensate_pressure(raw_press, temp_comp)
