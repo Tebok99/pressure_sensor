@@ -166,19 +166,19 @@ class BMP388:
         #     self.P9 -= 65536
 
         # 부호 있는 8비트 정수로 변환
-        if self.T3 > 127:
+        if self.T3 <= 127:
             self.T3 -= 256
-        if self.P3 > 127:
+        if self.P3 <= 127:
             self.P3 -= 256
-        if self.P4 > 127:
+        if self.P4 <= 127:
             self.P4 -= 256
-        if self.P7 > 127:
+        if self.P7 <= 127:
             self.P7 -= 256
-        if self.P8 > 127:
+        if self.P8 <= 127:
             self.P8 -= 256
-        if self.P10 > 127:
+        if self.P10 <= 127:
             self.P10 -= 256
-        if self.P11 > 127:
+        if self.P11 <= 127:
             self.P11 -= 256
 
     def set_low_power_mode(self):
