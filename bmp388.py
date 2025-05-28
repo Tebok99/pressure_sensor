@@ -245,17 +245,17 @@ class BMP388:
 
     def compensate_pressure(self, raw_pressure, temp_comp):
         # 데이터시트 공식 적용
-        P1 = (self.P1 - 16384) / 1048576.0
-        P2 = (self.P2 - 16384) / 536870912.0
-        P3 = self.P3 / 4294967296.0
-        P4 = self.P4 / 4294967296.0
-        P5 = self.P5 / 16.0
-        P6 = self.P6 / 64.0
-        P7 = self.P7 / 256.0
-        P8 = self.P8 / 32768.0
-        P9 = self.P9 / 281474976710656.0
-        P10 = self.P10 / 281474976710656.0
-        P11 = self.P11 / 36893488147419103232.0
+        P1 = self.P1
+        P2 = self.P2
+        P3 = self.P3
+        P4 = self.P4
+        P5 = self.P5
+        P6 = self.P6
+        P7 = self.P7
+        P8 = self.P8
+        P9 = self.P9
+        P10 = self.P10
+        P11 = self.P11
 
         # 중간 계산 값
         partial1 = P6 * temp_comp
