@@ -70,7 +70,7 @@ class DPS310:
 
         # 센서 ID 확인
         prod_id = self._read_byte(_DPS310_PROD_ID)
-        if (prod_id & 0x0F) != _DPS310_PROD_ID_VAL:
+        if prod_id != _DPS310_PROD_ID_VAL:
             raise RuntimeError("DPS310 센서를 찾을 수 없습니다. ID: %x" % prod_id)
 
         # 소프트 리셋 수행

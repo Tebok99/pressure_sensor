@@ -6,8 +6,8 @@ def main():
     mgr = SensorManager()
 
     # 저전력 모드 설정
-    mgr.bmp280.use_case(mgr.bmp280.BMP280_CASE_WEATHER)
-    mgr.dps310.mode = mgr.dps310.MODE_STANDBY
+    mgr.bmp280.set_low_power_mode()
+    mgr.dps310.set_low_power_mode()
     mgr.bmp388.set_low_power_mode()
 
     try:
