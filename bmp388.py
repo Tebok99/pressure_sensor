@@ -152,18 +152,18 @@ class BMP388:
         self.P11 = calib_data[20]
 
         # 부호 있는 16비트 정수로 변환
-        if self.T2 > 32767:
-            self.T2 -= 65536
-        if self.P1 > 32767:
-            self.P1 -= 65536
-        if self.P2 > 32767:
-            self.P2 -= 65536
-        if self.P5 > 32767:
-            self.P5 -= 65536
-        if self.P6 > 32767:
-            self.P6 -= 65536
-        if self.P9 > 32767:
-            self.P9 -= 65536
+        # if self.T2 > 32767:
+        #     self.T2 -= 65536
+        # if self.P1 > 32767:
+        #     self.P1 -= 65536
+        # if self.P2 > 32767:
+        #     self.P2 -= 65536
+        # if self.P5 > 32767:
+        #     self.P5 -= 65536
+        # if self.P6 > 32767:
+        #     self.P6 -= 65536
+        # if self.P9 > 32767:
+        #     self.P9 -= 65536
 
         # 부호 있는 8비트 정수로 변환
         if self.T3 > 127:
