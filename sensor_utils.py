@@ -1,6 +1,5 @@
 from machine import Pin, I2C
 import time
-import math
 import bmp280
 import bmp388
 import dps310

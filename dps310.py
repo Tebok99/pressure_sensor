@@ -116,9 +116,6 @@ class DPS310:
         # 보정 계수 블록 읽기 (18바이트)
         coef_data = self._read_bytes(_DPS310_COEF, 18)
 
-        # 온도 계수 소스 설정
-        # tmp_coef_src = self._read_byte(_DPS310_TMP_COEF_SRCE) & 0x80
-
         # 보정 계수 추출
         c0 = ((coef_data[0] << 4) | (coef_data[1] >> 4)) & 0x0FFF
         if c0 & 0x0800:  # 음수 처리
@@ -165,7 +162,6 @@ class DPS310:
         self.c20 = c20
         self.c21 = c21
         self.c30 = c30
-        # self.temp_source = tmp_coef_src
 
     def set_low_power_mode(self):
         """저전력 모드 설정

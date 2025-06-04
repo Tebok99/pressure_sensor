@@ -73,7 +73,7 @@ class BMP280:
         self._read_coefficients()
 
         # 기본 설정: 일반 모드, 16x 압력 오버샘플링, 2x 온도 오버샘플링, 0.5ms 대기 시간, 필터 끔
-        self._write_byte(_BMP280_CONFIG, (_BMP280_STANDBY_0_5 << 5) | (_BMP280_IIR_FILTER_OFF << 2))
+        # self._write_byte(_BMP280_CONFIG, (_BMP280_STANDBY_0_5 << 5) | (_BMP280_IIR_FILTER_OFF << 2))
         self.set_normal_mode()
 
     def _read_byte(self, register):
@@ -100,7 +100,7 @@ class BMP280:
     def _reset(self):
         """센서 리셋"""
         self._write_byte(_BMP280_RESET, 0xB6)
-        time.sleep_ms(50)  # 리셋 후 대기
+        time.sleep_ms(200)  # 리셋 후 대기
 
     def _read_coefficients(self):
         """보정 계수 읽기"""
