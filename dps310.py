@@ -212,7 +212,7 @@ class DPS310:
         """원시 압력 데이터 읽기"""
         while True:
             status = self._read_byte(_DPS310_MEAS_CFG)
-            if status & _DPS310_PRS_RDY:
+            if status & _DPS310_SENSOR_RDY:
                 break
             time.sleep_ms(5)
         data = self._read_bytes(_DPS310_PRS_B2, 3)
@@ -225,7 +225,7 @@ class DPS310:
         """원시 온도 데이터 읽기"""
         while True:
             status = self._read_byte(_DPS310_MEAS_CFG)
-            if status & _DPS310_TMP_RDY:
+            if status & _DPS310_SENSOR_RDY:
                 break
             time.sleep_ms(5)
         data = self._read_bytes(_DPS310_TMP_B2, 3)
