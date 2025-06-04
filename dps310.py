@@ -110,7 +110,7 @@ class DPS310:
         """보정 계수 읽기"""
         while True:
             status = self._read_byte(_DPS310_MEAS_CFG)
-            if (status & _DPS310_COEF_RDY) and (status & _DPS310_SENSOR_RDY):
+            if status & _DPS310_COEF_RDY:
                 break
             time.sleep_ms(5)
         # 보정 계수 블록 읽기 (18바이트)

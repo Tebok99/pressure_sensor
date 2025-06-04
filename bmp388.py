@@ -290,7 +290,7 @@ class BMP388:
     def temperature(self):
         """보정된 온도 읽기 (°C)"""
         raw_press, raw_temp = self.read_raw_data()
-        return self.compensate_temperature(raw_temp) / 100.0
+        return self.compensate_temperature(raw_temp)
 
     @property
     def pressure(self):
