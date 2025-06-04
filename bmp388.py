@@ -136,50 +136,66 @@ class BMP388:
         calib_data = self._read_bytes(_BMP388_CALIB_DATA, 21)
 
         # 데이터시트에 따라 보정 계수 추출
-        self.T1 = (calib_data[1] << 8) | calib_data[0]
-        self.T2 = (calib_data[3] << 8) | calib_data[2]
-        self.T3 = calib_data[4]
-        self.P1 = (calib_data[6] << 8) | calib_data[5]
-        self.P2 = (calib_data[8] << 8) | calib_data[7]
-        self.P3 = calib_data[9]
-        self.P4 = calib_data[10]
-        self.P5 = (calib_data[12] << 8) | calib_data[11]
-        self.P6 = (calib_data[14] << 8) | calib_data[13]
-        self.P7 = calib_data[15]
-        self.P8 = calib_data[16]
-        self.P9 = (calib_data[18] << 8) | calib_data[17]
-        self.P10 = calib_data[19]
-        self.P11 = calib_data[20]
+        self.T1 = (calib_data[1] << 8) | calib_data[0]  # 부호 없는 16비트
+        self.T2 = (calib_data[3] << 8) | calib_data[2]  # 부호 있는 16비트
+        self.T3 = calib_data[4]  # 부호 있는 8비트
+        self.P1 = (calib_data[6] << 8) | calib_data[5]  # 부호 있는 16비트
+        self.P2 = (calib_data[8] << 8) | calib_data[7]  # 부호 있는 16비트
+        self.P3 = calib_data[9]  # 부호 있는 8비트
+        self.P4 = calib_data[10]  # 부호 있는 8비트
+        self.P5 = (calib_data[12] << 8) | calib_data[11]  # 부호 없는 16비트
+        self.P6 = (calib_data[14] << 8) | calib_data[13]  # 부호 없는 16비트
+        self.P7 = calib_data[15]  # 부호 있는 8비트
+        self.P8 = calib_data[16]  # 부호 있는 8비트
+        self.P9 = (calib_data[18] << 8) | calib_data[17]  # 부호 있는 16비트
+        self.P10 = calib_data[19]  # 부호 있는 8비트
+        self.P11 = calib_data[20]  # 부호 있는 8비트
 
         # 부호 있는 16비트 정수로 변환
-        # if self.T2 > 32767:
-        #     self.T2 -= 65536
-        # if self.P1 > 32767:
-        #     self.P1 -= 65536
-        # if self.P2 > 32767:
-        #     self.P2 -= 65536
-        # if self.P5 > 32767:
-        #     self.P5 -= 65536
-        # if self.P6 > 32767:
-        #     self.P6 -= 65536
-        # if self.P9 > 32767:
-        #     self.P9 -= 65536
+        if self.T2 > 32767:
+            self.T2 -= 65536
+        if self.P1 > 32767:
+            self.P1 -= 65536
+        if self.P2 > 32767:
+            self.P2 -= 65536
+        if self.P5 > 32767:
+            self.P5 -= 65536
+        if self.P6 > 32767:
+            self.P6 -= 65536
+        if self.P9 > 32767:
+            self.P9 -= 65536
 
         # 부호 있는 8비트 정수로 변환
-        if self.T3 <= 127:
+        if self.T3 > 127:
             self.T3 -= 256
-        if self.P3 <= 127:
+        if self.P3 > 127:
             self.P3 -= 256
-        if self.P4 <= 127:
+        if self.P4 > 127:
             self.P4 -= 256
-        if self.P7 <= 127:
+        if self.P7 > 127:
             self.P7 -= 256
-        if self.P8 <= 127:
+        if self.P8 > 127:
             self.P8 -= 256
-        if self.P10 <= 127:
+        if self.P10 > 127:
             self.P10 -= 256
-        if self.P11 <= 127:
+        if self.P11 > 127:
             self.P11 -= 256
+
+        # 보정 계수 스케일링 (데이터시트 9.1)
+        self.par_p1 = (float(self.P1) - 16384.0) / (1 << 20)
+        self.par_p10 = float(self.P10) / (1 << 48)
+        self.par_p11 = float(self.P11) / (1 << 65)
+        self.par_p2 = (float(self.P2) - 16384.0) / (1 << 29)
+        self.par_p3 = float(self.P3) / (1 << 32)
+        self.par_p4 = float(self.P4) / (1 << 37)
+        self.par_p5 = float(self.P5) / 64.0
+        self.par_p6 = float(self.P6) / (1 << 37)
+        self.par_p7 = float(self.P7) / 256.0
+        self.par_p8 = float(self.P8) / (1 << 15)
+        self.par_p9 = float(self.P9) / (1 << 48)
+        self.par_t1 = float(self.T1) * 256.0  # / 2^(-8)
+        self.par_t2 = float(self.T2) / (1 << 30)
+        self.par_t3 = float(self.T3) / (1 << 48)
 
     def set_low_power_mode(self):
         """저전력 모드 설정
@@ -226,7 +242,6 @@ class BMP388:
     def force_measure(self):
         """강제 측정 모드"""
         self._write_byte(_BMP388_PWR_CTRL, _BMP388_POWER_FORCED)
-        start = time.ticks_ms()
 
         while self.is_measuring():
             time.sleep_ms(5)
@@ -244,39 +259,42 @@ class BMP388:
         return raw_pressure, raw_temperature
 
     def compensate_temperature(self, raw_temp):
-        """온도 보정 계산 (BMP388 데이터시트 기준)"""
-        # 데이터시트의 보정 공식 구현
-        partial_data1 = raw_temp - (self.T1 * 256.0)
-        partial_data2 = partial_data1 * self.T2
-        temp_comp = partial_data2 + (partial_data1 * partial_data1 * self.T3)
-        return temp_comp
+        """온도 보정 계산 (데이터시트 9.2)"""
+        partial_data1 = raw_temp - self.par_t1
+        partial_data2 = partial_data1 * self.par_t2
+        t_lin = partial_data2 + (partial_data1 * partial_data1) * self.par_t3
+        return t_lin  # 섭씨 온도 (°C)
 
-    def compensate_pressure(self, raw_pressure, temp_comp):
-        # 데이터시트 공식 적용
-        var1 = temp_comp - 64000.0
-        var2 = var1 * var1 * self.P6 / 131072.0
-        var2 = var2 + var1 * self.P5 * 2.0
-        var2 = (var2 / 4.0) + (self.P4 * 65536.0)
-        var1 = ((self.P3 * var1 * var1) / 16384.0 + self.P2 * var1) / 524288.0
-        var1 = (1.0 + var1 / 32768.0) * self.P1
-        if var1 == 0.0:
-            return 0.0  # 0으로 나누기 방지
-        pressure = 1048576.0 - raw_pressure
-        pressure = (pressure - (var2 / 4096.0)) * 6250.0 / var1
-        var1 = self.P9 * pressure * pressure / 2147483648.0
-        var2 = pressure * self.P8 / 32768.0
-        pressure = pressure + (var1 + var2 + self.P7) / 16.0
-        return pressure
+    def compensate_pressure(self, raw_press, t_lin):
+        """기압 보정 계산 (데이터시트 9.3)"""
+        partial_data1 = self.par_p6 * t_lin
+        partial_data2 = self.par_p7 * (t_lin ** 2)
+        partial_data3 = self.par_p8 * (t_lin ** 3)
+        partial_out1 = self.par_p5 + partial_data1 + partial_data2 + partial_data3
+
+        partial_data1 = self.par_p2 * t_lin
+        partial_data2 = self.par_p3 * (t_lin ** 2)
+        partial_data3 = self.par_p4 * (t_lin ** 3)
+        partial_out2 = raw_press * (self.par_p1 + partial_data1 + partial_data2 + partial_data3)
+
+        partial_data1 = raw_press * raw_press
+        partial_data2 = self.par_p9 + self.par_p10 * t_lin
+        partial_data3 = partial_data1 * partial_data2
+        partial_data4 = partial_data3 + (raw_press ** 3) * self.par_p11
+
+        comp_press = partial_out1 + partial_out2 + partial_data4
+        return comp_press  # 파스칼 (Pa)
 
     @property
     def temperature(self):
         """보정된 온도 읽기 (°C)"""
-        _, raw_temp = self.read_raw_data()
-        return self.compensate_temperature(raw_temp) / 100.0
+        raw_press, raw_temp = self.read_raw_data()
+        return self.compensate_temperature(raw_temp)
 
     @property
     def pressure(self):
         """보정된 기압 읽기 (hPa)"""
         raw_press, raw_temp = self.read_raw_data()
-        temp_comp = self.compensate_temperature(raw_temp)
-        return self.compensate_pressure(raw_press, temp_comp) / 100.0  # Pa -> hPa
+        t_lin = self.compensate_temperature(raw_temp)
+        pressure_pa = self.compensate_pressure(raw_press, t_lin)
+        return pressure_pa / 100.0  # Pa -> hPa
