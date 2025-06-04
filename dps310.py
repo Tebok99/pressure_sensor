@@ -14,6 +14,10 @@ _DPS310_RESET = const(0x0C)
 _DPS310_PRS_CFG = const(0x06)
 _DPS310_TMP_CFG = const(0x07)
 _DPS310_MEAS_CFG = const(0x08)
+_DPS310_COEF_RDY = const(0x80)
+_DPS310_SENSOR_RDY = const(0x40)
+_DPS310_TMP_RDY = const(0x10)
+_DPS310_PRS_RDY = const(0x30)
 _DPS310_CFG_REG = const(0x09)
 _DPS310_INT_STS = const(0x0A)
 _DPS310_FIFO_STS = const(0x0B)
@@ -104,6 +108,11 @@ class DPS310:
 
     def _read_calibration(self):
         """보정 계수 읽기"""
+        while True:
+            status = self._read_byte(_DPS310_MEAS_CFG)
+            if (status & _DPS310_COEF_RDY) and (status & _DPS310_SENSOR_RDY):
+                break
+            time.sleep_ms(5)
         # 보정 계수 블록 읽기 (18바이트)
         coef_data = self._read_bytes(_DPS310_COEF, 18)
 
@@ -201,6 +210,11 @@ class DPS310:
 
     def read_raw_pressure(self):
         """원시 압력 데이터 읽기"""
+        while True:
+            status = self._read_byte(_DPS310_MEAS_CFG)
+            if status & _DPS310_PRS_RDY:
+                break
+            time.sleep_ms(5)
         data = self._read_bytes(_DPS310_PRS_B2, 3)
         raw_pressure = (data[0] << 16) | (data[1] << 8) | data[2]
         if raw_pressure & 0x800000:  # 음수 처리
@@ -209,6 +223,11 @@ class DPS310:
 
     def read_raw_temperature(self):
         """원시 온도 데이터 읽기"""
+        while True:
+            status = self._read_byte(_DPS310_MEAS_CFG)
+            if status & _DPS310_TMP_RDY:
+                break
+            time.sleep_ms(5)
         data = self._read_bytes(_DPS310_TMP_B2, 3)
         raw_temperature = (data[0] << 16) | (data[1] << 8) | data[2]
         if raw_temperature & 0x800000:  # 음수 처리
