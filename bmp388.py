@@ -182,9 +182,10 @@ class BMP388:
             self.P11 -= 256
 
         # 보정 계수 스케일링 (데이터시트 9.1)
+        self.par_t1 = float(self.T1) * 256.0  # / 2^(-8)
+        self.par_t2 = float(self.T2) / (1 << 30)
+        self.par_t3 = float(self.T3) / (1 << 48)
         self.par_p1 = (float(self.P1) - 16384.0) / (1 << 20)
-        self.par_p10 = float(self.P10) / (1 << 48)
-        self.par_p11 = float(self.P11) / (1 << 65)
         self.par_p2 = (float(self.P2) - 16384.0) / (1 << 29)
         self.par_p3 = float(self.P3) / (1 << 32)
         self.par_p4 = float(self.P4) / (1 << 37)
@@ -193,9 +194,8 @@ class BMP388:
         self.par_p7 = float(self.P7) / 256.0
         self.par_p8 = float(self.P8) / (1 << 15)
         self.par_p9 = float(self.P9) / (1 << 48)
-        self.par_t1 = float(self.T1) * 256.0  # / 2^(-8)
-        self.par_t2 = float(self.T2) / (1 << 30)
-        self.par_t3 = float(self.T3) / (1 << 48)
+        self.par_p10 = float(self.P10) / (1 << 48)
+        self.par_p11 = float(self.P11) / (1 << 65)
 
     def set_low_power_mode(self):
         """저전력 모드 설정
