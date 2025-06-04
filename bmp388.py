@@ -247,6 +247,11 @@ class BMP388:
         return (self._read_byte(_BMP388_STATUS) & 0x60) > 0  # 압력 또는 온도 변환 중인지 확인
 
     def read_raw_data(self):
+        while True:
+            status = self._read_byte(_BMP388_STATUS)
+            if (status & 0x20) and (status & 0x40):
+                break
+            time.sleep_ms(5)
         data = self._read_bytes(_BMP388_DATA_0, 6)
         # 압력 데이터 조합 (리틀 엔디언)
         raw_pressure = (data[2] << 16) | (data[1] << 8) | data[0]
