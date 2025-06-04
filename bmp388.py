@@ -244,7 +244,7 @@ class BMP388:
 
     def is_measuring(self):
         """측정 중인지 확인"""
-        return (self._read_byte(_BMP388_STATUS) & 0x60) > 0  # 압력 또는 온도 변환 중인지 확인
+        return (self._read_byte(_BMP388_STATUS) & 0x60) == 0  # 압력 또는 온도 변환 중인지 확인
 
     def read_raw_data(self):
         while True:

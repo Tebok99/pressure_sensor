@@ -104,6 +104,11 @@ class BMP280:
 
     def _read_coefficients(self):
         """보정 계수 읽기"""
+        while True:
+            status = self._read_signed_word(_BMP280_STATUS)
+            if status == 0:
+                break
+            time.sleep_ms(5)
         self.dig_T1 = self._read_word(_BMP280_DIG_T1)
         self.dig_T2 = self._read_signed_word(_BMP280_DIG_T1 + 2)
         self.dig_T3 = self._read_signed_word(_BMP280_DIG_T1 + 4)
