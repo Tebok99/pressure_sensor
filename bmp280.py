@@ -70,7 +70,7 @@ class BMP280:
 
         # 초기화 및 보정 데이터 읽기
         self._reset()
-    self._read_coefficients()
+        self._read_coefficients()
 
         # 기본 설정: 일반 모드, 16x 압력 오버샘플링, 2x 온도 오버샘플링, 0.5ms 대기 시간, 필터 끔
         self._write_byte(_BMP280_CONFIG, (_BMP280_STANDBY_0_5 << 5) | (_BMP280_IIR_FILTER_OFF << 2))
