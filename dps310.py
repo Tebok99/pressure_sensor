@@ -16,8 +16,8 @@ _DPS310_TMP_CFG = const(0x07)
 _DPS310_MEAS_CFG = const(0x08)
 _DPS310_COEF_RDY = const(0x80)
 _DPS310_SENSOR_RDY = const(0x40)
-_DPS310_TMP_RDY = const(0x10)
-_DPS310_PRS_RDY = const(0x30)
+_DPS310_TMP_RDY = const(0x20)
+_DPS310_PRS_RDY = const(0x10)
 _DPS310_CFG_REG = const(0x09)
 _DPS310_INT_STS = const(0x0A)
 _DPS310_FIFO_STS = const(0x0B)
@@ -104,7 +104,7 @@ class DPS310:
     def _reset(self):
         """소프트 리셋 수행"""
         self._write_byte(_DPS310_RESET, 0x89)
-        time.sleep_ms(50)  # 리셋 후 대기
+        time.sleep_ms(300)  # 리셋 후 대기
 
     def _read_calibration(self):
         """보정 계수 읽기"""
@@ -117,7 +117,7 @@ class DPS310:
         coef_data = self._read_bytes(_DPS310_COEF, 18)
 
         # 온도 계수 소스 설정
-        tmp_coef_src = self._read_byte(_DPS310_TMP_COEF_SRCE) & 0x80
+        # tmp_coef_src = self._read_byte(_DPS310_TMP_COEF_SRCE) & 0x80
 
         # 보정 계수 추출
         c0 = ((coef_data[0] << 4) | (coef_data[1] >> 4)) & 0x0FFF
@@ -165,7 +165,7 @@ class DPS310:
         self.c20 = c20
         self.c21 = c21
         self.c30 = c30
-        self.temp_source = tmp_coef_src
+        # self.temp_source = tmp_coef_src
 
     def set_low_power_mode(self):
         """저전력 모드 설정
@@ -203,8 +203,8 @@ class DPS310:
         # 백그라운드 모드 활성화
         self._write_byte(_DPS310_MEAS_CFG, _DPS310_BACKGROUND_MODE)
 
-        self.temp_scale = 1048576.0  # 16x 오버샘플링
-        self.press_scale = 4194304.0  # 64x 오버샘플링
+        self.temp_scale = 253952.0  # 16x 오버샘플링
+        self.press_scale = 1040384.0  # 64x 오버샘플링
         # 대기
         time.sleep_ms(50)
 

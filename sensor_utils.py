@@ -22,10 +22,11 @@ class SensorManager:
         """기압 → 고도 변환 (복소수 및 음수 방지)"""
         try:
             # 입력값 음수 방지
-            pressure = abs(float(pressure_hpa))
+            if pressure_hpa <= 0 or sea_level <= 0:
+                return 0.0
 
             # 비율 계산 (0~1 범위 강제)
-            ratio = (pressure / sea_level) ** (1.0/5.255)
+            ratio = (pressure_hpa / sea_level) ** (1/5.255)
             # ratio = max(0.0, min(1.0, ratio))  # 0~1 범위 제한
 
             # 고도 계산 및 음수 방지

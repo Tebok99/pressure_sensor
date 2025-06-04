@@ -128,7 +128,7 @@ class BMP388:
     def _reset(self):
         """소프트 리셋 수행"""
         self._write_byte(_BMP388_CMD, _BMP388_CMD_SOFTRESET)
-        time.sleep_ms(50)  # 리셋 후 대기
+        time.sleep_ms(500)  # 리셋 후 대기
 
     def _read_calibration_data(self):
         """보정 데이터 읽기"""
