@@ -108,11 +108,11 @@ class DPS310:
 
     def _read_calibration(self):
         """보정 계수 읽기"""
-        while True:
-            status = self._read_byte(_DPS310_MEAS_CFG)
-            if status & _DPS310_COEF_RDY:
-                break
-            time.sleep_ms(5)
+        # while True:
+        #     status = self._read_byte(_DPS310_MEAS_CFG)
+        #     if status & _DPS310_COEF_RDY:
+        #         break
+        #     time.sleep_ms(5)
         # 보정 계수 블록 읽기 (18바이트)
         coef_data = self._read_bytes(_DPS310_COEF, 18)
 

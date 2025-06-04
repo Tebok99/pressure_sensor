@@ -25,7 +25,7 @@ class SensorManager:
                 return 0.0
 
             # 비율 계산 (0~1 범위 강제)
-            ratio = (pressure_hpa / sea_level) ** (1/5.255)
+            ratio = (pressure_hpa / sea_level) ** 0.190294957
             # ratio = max(0.0, min(1.0, ratio))  # 0~1 범위 제한
 
             # 고도 계산 및 음수 방지
