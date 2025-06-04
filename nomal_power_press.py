@@ -27,7 +27,7 @@ def main():
                 print(f"['{name}', '{value:.2f}hPa', '{altitude:.2f}m']")
             print("=" * 50)
 
-            time.sleep(0.5)
+            time.sleep(1)
 
     except KeyboardInterrupt:
         print("프로그램 종료")
