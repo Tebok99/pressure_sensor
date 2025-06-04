@@ -158,10 +158,6 @@ class BMP388:
             self.P1 -= 65536
         if self.P2 > 32767:
             self.P2 -= 65536
-        if self.P5 > 32767:
-            self.P5 -= 65536
-        if self.P6 > 32767:
-            self.P6 -= 65536
         if self.P9 > 32767:
             self.P9 -= 65536
 
