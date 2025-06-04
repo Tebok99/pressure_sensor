@@ -210,11 +210,11 @@ class DPS310:
 
     def read_raw_pressure(self):
         """원시 압력 데이터 읽기"""
-        while True:
-            status = self._read_byte(_DPS310_MEAS_CFG)
-            if status & _DPS310_SENSOR_RDY:
-                break
-            time.sleep_ms(5)
+        # while True:
+        #     status = self._read_byte(_DPS310_MEAS_CFG)
+        #     if status & _DPS310_SENSOR_RDY:
+        #         break
+        #     time.sleep_ms(5)
         data = self._read_bytes(_DPS310_PRS_B2, 3)
         raw_pressure = (data[0] << 16) | (data[1] << 8) | data[2]
         if raw_pressure & 0x800000:  # 음수 처리
@@ -223,11 +223,11 @@ class DPS310:
 
     def read_raw_temperature(self):
         """원시 온도 데이터 읽기"""
-        while True:
-            status = self._read_byte(_DPS310_MEAS_CFG)
-            if status & _DPS310_SENSOR_RDY:
-                break
-            time.sleep_ms(5)
+        # while True:
+        #     status = self._read_byte(_DPS310_MEAS_CFG)
+        #     if status & _DPS310_SENSOR_RDY:
+        #         break
+        #     time.sleep_ms(5)
         data = self._read_bytes(_DPS310_TMP_B2, 3)
         raw_temperature = (data[0] << 16) | (data[1] << 8) | data[2]
         if raw_temperature & 0x800000:  # 음수 처리
