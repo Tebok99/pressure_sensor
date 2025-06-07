@@ -50,13 +50,12 @@ _BMP388_POWER_NORMAL = const(0x33)  # 압력 및 온도 모두 활성화
 _BMP388_POWER_FORCED = const(0x13)  # 압력 및 온도 강제 측정
 
 # 오버샘플링 설정 (OSR)
-_BMP388_OSR_NONE = const(0x00)
-_BMP388_OSR_1X = const(0x01)
-_BMP388_OSR_2X = const(0x02)
-_BMP388_OSR_4X = const(0x03)
-_BMP388_OSR_8X = const(0x04)
-_BMP388_OSR_16X = const(0x05)
-_BMP388_OSR_32X = const(0x06)
+_BMP388_OSR_1X = const(0x00)    # BMP388_OSR_NONE
+_BMP388_OSR_2X = const(0x01)
+_BMP388_OSR_4X = const(0x02)
+_BMP388_OSR_8X = const(0x03)
+_BMP388_OSR_16X = const(0x04)
+_BMP388_OSR_32X = const(0x05)
 
 # 출력 데이터 속도 (ODR)
 _BMP388_ODR_200HZ = const(0x00)
@@ -76,6 +75,7 @@ _BMP388_ODR_0_02HZ = const(0x0D)
 _BMP388_ODR_0_01HZ = const(0x0E)
 _BMP388_ODR_0_006HZ = const(0x0F)
 _BMP388_ODR_0_003HZ = const(0x10)
+_BMP388_ODR_0_0015HZ = const(0x11)
 
 # 필터 설정
 _BMP388_IIR_FILTER_COEFF_0 = const(0x00)
@@ -207,7 +207,7 @@ class BMP388:
         self._write_byte(_BMP388_OSR, (_BMP388_OSR_1X << 3) | _BMP388_OSR_1X)
 
         # 필터 설정 (꺼짐)
-        self._write_byte(_BMP388_CONFIG, _BMP388_IIR_FILTER_COEFF_0)
+        self._write_byte(_BMP388_CONFIG, _BMP388_IIR_FILTER_COEFF_0 << 1)
 
         # 전력 모드 설정 (일반 모드)
         self._write_byte(_BMP388_PWR_CTRL, _BMP388_POWER_NORMAL)
@@ -223,10 +223,10 @@ class BMP388:
         self._write_byte(_BMP388_ODR, _BMP388_ODR_50HZ)
 
         # 오버샘플링 설정 (온도 2x, 압력 16x)
-        self._write_byte(_BMP388_OSR, (_BMP388_OSR_16X << 3) | _BMP388_OSR_2X)
+        self._write_byte(_BMP388_OSR, (_BMP388_OSR_2X << 3) | _BMP388_OSR_16X)
 
         # 필터 설정 (2x)
-        self._write_byte(_BMP388_CONFIG, _BMP388_IIR_FILTER_COEFF_1)
+        self._write_byte(_BMP388_CONFIG, _BMP388_IIR_FILTER_COEFF_1 << 1)
 
         # 전력 모드 설정 (일반 모드)
         self._write_byte(_BMP388_PWR_CTRL, _BMP388_POWER_NORMAL)
