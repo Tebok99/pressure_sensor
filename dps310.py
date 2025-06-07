@@ -14,10 +14,6 @@ _DPS310_RESET = const(0x0C)
 _DPS310_PRS_CFG = const(0x06)
 _DPS310_TMP_CFG = const(0x07)
 _DPS310_MEAS_CFG = const(0x08)
-_DPS310_COEF_RDY = const(0x80)
-_DPS310_SENSOR_RDY = const(0x40)
-_DPS310_TMP_RDY = const(0x20)
-_DPS310_PRS_RDY = const(0x10)
 _DPS310_CFG_REG = const(0x09)
 _DPS310_INT_STS = const(0x0A)
 _DPS310_FIFO_STS = const(0x0B)
@@ -58,6 +54,12 @@ _DPS310_OSR_16 = const(0x04)
 _DPS310_OSR_32 = const(0x05)
 _DPS310_OSR_64 = const(0x06)
 _DPS310_OSR_128 = const(0x07)
+
+# 측정 준비 상태
+_DPS310_COEF_RDY = const(0x80)
+_DPS310_SENSOR_RDY = const(0x40)
+_DPS310_TMP_RDY = const(0x20)
+_DPS310_PRS_RDY = const(0x10)
 
 
 class DPS310:

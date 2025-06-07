@@ -87,6 +87,10 @@ _BMP388_IIR_FILTER_COEFF_31 = const(0x05)
 _BMP388_IIR_FILTER_COEFF_63 = const(0x06)
 _BMP388_IIR_FILTER_COEFF_127 = const(0x07)
 
+# 측정 준비 상태
+_BMP388_DRDY_PRESS = const(0x20)
+_BMP388_DRDY_TEMP = const(0x40)
+
 
 class BMP388:
     """BMP388 디지털 압력 센서 드라이버"""
@@ -240,18 +244,15 @@ class BMP388:
         self._write_byte(_BMP388_PWR_CTRL, _BMP388_POWER_FORCED)
 
         while self.is_measuring():
-            time.sleep_ms(5)
+            time.sleep_ms(10)
 
     def is_measuring(self):
         """측정 중인지 확인"""
-        return (self._read_byte(_BMP388_STATUS) & 0x60) == 0  # 압력 또는 온도 변환 중인지 확인
+        return self._read_byte(_BMP388_STATUS) < (_BMP388_DRDY_PRESS | _BMP388_DRDY_TEMP)  # 압력 또는 온도 변환 중인지 확인
 
     def read_raw_data(self):
-        while True:
-            status = self._read_byte(_BMP388_STATUS)
-            if (status & 0x20) and (status & 0x40):
-                break
-            time.sleep_ms(5)
+        while self.is_measuring():
+            time.sleep_ms(10)
         data = self._read_bytes(_BMP388_DATA_0, 6)
         # 압력 데이터 조합 (리틀 엔디언)
         raw_pressure = (data[2] << 16) | (data[1] << 8) | data[0]
