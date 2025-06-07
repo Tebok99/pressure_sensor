@@ -141,7 +141,7 @@ class BMP388:
 
         # 데이터시트에 따라 보정 계수 추출
         self.T1 = (calib_data[1] << 8) | calib_data[0]  # 부호 없는 16비트
-        self.T2 = (calib_data[3] << 8) | calib_data[2]  # 부호 있는 16비트
+        self.T2 = (calib_data[3] << 8) | calib_data[2]  # 부호 없는 16비트
         self.T3 = calib_data[4]  # 부호 있는 8비트
         self.P1 = (calib_data[6] << 8) | calib_data[5]  # 부호 있는 16비트
         self.P2 = (calib_data[8] << 8) | calib_data[7]  # 부호 있는 16비트
@@ -156,8 +156,6 @@ class BMP388:
         self.P11 = calib_data[20]  # 부호 있는 8비트
 
         # 부호 있는 16비트 정수로 변환
-        if self.T2 > 32767:
-            self.T2 -= 65536
         if self.P1 > 32767:
             self.P1 -= 65536
         if self.P2 > 32767:
@@ -294,7 +292,7 @@ class BMP388:
     @property
     def temperature(self):
         """보정된 온도 읽기 (°C)"""
-        raw_press, raw_temp = self.read_raw_data()
+        _, raw_temp = self.read_raw_data()
         return self.compensate_temperature(raw_temp)
 
     @property
