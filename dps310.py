@@ -119,7 +119,7 @@ class DPS310:
         coef_data = self._read_bytes(_DPS310_COEF, 18)
 
         # 보정 계수 추출
-        c0 = ((coef_data[0] << 4) | (coef_data[1] >> 4)) & 0x0FFF
+        c0 = (coef_data[0] << 4) | (coef_data[1] >> 4)
         if c0 & 0x0800:  # 음수 처리
             c0 -= 0x1000
 
@@ -127,11 +127,11 @@ class DPS310:
         if c1 & 0x0800:  # 음수 처리
             c1 -= 0x1000
 
-        c00 = ((coef_data[3] << 12) | (coef_data[4] << 4) | (coef_data[5] >> 4)) & 0xFFFFF
+        c00 = (coef_data[3] << 12) | (coef_data[4] << 4) | (coef_data[5] >> 4)
         if c00 & 0x80000:  # 음수 처리
             c00 -= 0x100000
 
-        c10 = ((coef_data[5] & 0x0F) << 16) | (coef_data[6] << 8) | coef_data[7]
+        c10 = ((coef_data[5] & 0x0000F) << 16) | (coef_data[6] << 8) | coef_data[7]
         if c10 & 0x80000:  # 음수 처리
             c10 -= 0x100000
 
@@ -172,7 +172,7 @@ class DPS310:
         - 백그라운드 모드
         """
         # 온도 설정: 1x 오버샘플링, 1Hz
-        self._write_byte(_DPS310_TMP_CFG, _DPS310_RATE_1_HZ | _DPS310_OSR_1)
+        self._write_byte(_DPS310_TMP_CFG, 0x000 | _DPS310_RATE_1_HZ | _DPS310_OSR_1)
 
         # 압력 설정: 1x 오버샘플링, 1Hz
         self._write_byte(_DPS310_PRS_CFG, _DPS310_RATE_1_HZ | _DPS310_OSR_1)
@@ -193,7 +193,7 @@ class DPS310:
         - 백그라운드 모드
         """
         # 온도 설정: 16x 오버샘플링, 8Hz
-        self._write_byte(_DPS310_TMP_CFG, _DPS310_RATE_8_HZ | _DPS310_OSR_16)
+        self._write_byte(_DPS310_TMP_CFG, 0x000 | _DPS310_RATE_8_HZ | _DPS310_OSR_16)
 
         # 압력 설정: 64x 오버샘플링, 8Hz
         self._write_byte(_DPS310_PRS_CFG, _DPS310_RATE_8_HZ | _DPS310_OSR_64)
