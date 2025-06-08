@@ -264,8 +264,8 @@ class BMP388:
 
     def compensate_temperature(self, raw_temp):
         """온도 보정 계산 (데이터시트 9.2)"""
-        partial_data1 = raw_temp - self.par_t1
-        partial_data2 = partial_data1 * self.par_t2
+        partial_data1 = float(raw_temp - self.par_t1)
+        partial_data2 = float(partial_data1 * self.par_t2)
         t_lin = partial_data2 + (partial_data1 * partial_data1) * self.par_t3
         return t_lin  # 섭씨 온도 (°C)
 
@@ -279,12 +279,12 @@ class BMP388:
         partial_data1 = self.par_p2 * t_lin
         partial_data2 = self.par_p3 * (t_lin ** 2)
         partial_data3 = self.par_p4 * (t_lin ** 3)
-        partial_out2 = raw_press * (self.par_p1 + partial_data1 + partial_data2 + partial_data3)
+        partial_out2 = float(raw_press) * (self.par_p1 + partial_data1 + partial_data2 + partial_data3)
 
-        partial_data1 = raw_press * raw_press
+        partial_data1 = float(raw_press) * float(raw_press)
         partial_data2 = self.par_p9 + self.par_p10 * t_lin
         partial_data3 = partial_data1 * partial_data2
-        partial_data4 = partial_data3 + (raw_press ** 3) * self.par_p11
+        partial_data4 = partial_data3 + (float(raw_press) ** 3) * self.par_p11
 
         comp_press = partial_out1 + partial_out2 + partial_data4
         return comp_press  # 파스칼 (Pa)
