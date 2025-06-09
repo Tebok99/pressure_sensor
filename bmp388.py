@@ -138,6 +138,8 @@ class BMP388:
         """보정 데이터 읽기"""
         # BMP388 보정 데이터 읽기 (총 21바이트)
         calib_data = self._read_bytes(_BMP388_CALIB_DATA, 21)
+        if len(calib_data) != 21:
+            raise ValueError("BMP388 calibration data read failed.")
 
         # 데이터시트에 따라 보정 계수 추출
         self.T1 = (calib_data[1] << 8) | calib_data[0]  # 부호 없는 16비트
@@ -214,6 +216,8 @@ class BMP388:
         # 전력 모드 설정 (일반 모드)
         self._write_byte(_BMP388_PWR_CTRL, _BMP388_POWER_NORMAL)
 
+        time.sleep_ms(100)
+
     def set_normal_mode(self):
         """일반 모드 설정
         - 온도: 2x 오버샘플링
@@ -232,6 +236,8 @@ class BMP388:
 
         # 전력 모드 설정 (일반 모드)
         self._write_byte(_BMP388_PWR_CTRL, _BMP388_POWER_NORMAL)
+
+        time.sleep_ms(100)
 
     def sleep(self):
         """슬립 모드로 전환"""
