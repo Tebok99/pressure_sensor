@@ -133,7 +133,7 @@ class BMP280:
         self._write_byte(_BMP280_CONFIG, (_BMP280_STANDBY_1000 << 5) | (_BMP280_IIR_FILTER_OFF << 2))
         self._write_byte(_BMP280_CTRL_MEAS, (_BMP280_OS_1X << 5) | (_BMP280_OS_1X << 2) | _BMP280_POWER_NORMAL)
 
-        time.sleep_ms(10)
+        time.sleep_ms(20)
 
     def set_normal_mode(self):
         """일반 모드 설정
@@ -145,7 +145,7 @@ class BMP280:
         self._write_byte(_BMP280_CONFIG, (_BMP280_STANDBY_0_5 << 5) | (_BMP280_IIR_FILTER_4 << 2))
         self._write_byte(_BMP280_CTRL_MEAS, (_BMP280_OS_16X << 5) | (_BMP280_OS_2X << 2) | _BMP280_POWER_NORMAL)
 
-        time.sleep_ms(10)
+        time.sleep_ms(20)
 
     def sleep(self):
         """슬립 모드로 전환"""

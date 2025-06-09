@@ -184,7 +184,7 @@ class DPS310:
         self.press_scale = 524288.0  # 1x 오버샘플링
 
         # 대기
-        time.sleep_ms(10)
+        time.sleep_ms(20)
 
     def set_normal_mode(self):
         """일반 모드 설정
@@ -204,7 +204,7 @@ class DPS310:
         self.temp_scale = 253952.0  # 16x 오버샘플링
         self.press_scale = 1040384.0  # 64x 오버샘플링
         # 대기
-        time.sleep_ms(10)
+        time.sleep_ms(20)
 
     def read_raw_pressure(self):
         """원시 압력 데이터 읽기"""

@@ -8,8 +8,8 @@ class SensorManager:
     def __init__(self):
         """I2C 버스 및 센서 초기화 (에러 처리 없음)"""
         # I2C 버스 설정
-        self.i2c0 = I2C(0, sda=Pin(0), scl=Pin(1), freq=100000)
-        self.i2c1 = I2C(1, sda=Pin(6), scl=Pin(7), freq=100000)
+        self.i2c0 = I2C(0, sda=Pin(0), scl=Pin(1), freq=400000)
+        self.i2c1 = I2C(1, sda=Pin(6), scl=Pin(7), freq=400000)
 
         # 센서 초기화
         self.bmp280 = bmp280.BMP280(self.i2c0, addr=0x76)

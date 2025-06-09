@@ -220,7 +220,7 @@ class BMP388:
         # 전력 모드 설정 (일반 모드)
         self._write_byte(_BMP388_PWR_CTRL, _BMP388_POWER_NORMAL)
 
-        time.sleep_ms(10)
+        time.sleep_ms(20)
 
     def set_normal_mode(self):
         """일반 모드 설정
@@ -232,8 +232,8 @@ class BMP388:
         # 출력 데이터 속도 설정 (50Hz)
         self._write_byte(_BMP388_ODR, _BMP388_ODR_50HZ)
 
-        # 오버샘플링 설정 (온도 2x, 압력 16x)
-        self._write_byte(_BMP388_OSR, (_BMP388_OSR_2X << 3) | _BMP388_OSR_16X)
+        # 오버샘플링 설정 (온도 2x, 압력 8x)
+        self._write_byte(_BMP388_OSR, (_BMP388_OSR_2X << 3) | _BMP388_OSR_8X)
 
         # 필터 설정 (2x)
         self._write_byte(_BMP388_CONFIG, _BMP388_IIR_FILTER_COEFF_1 << 1)
@@ -241,7 +241,7 @@ class BMP388:
         # 전력 모드 설정 (일반 모드)
         self._write_byte(_BMP388_PWR_CTRL, _BMP388_POWER_NORMAL)
 
-        time.sleep_ms(10)
+        time.sleep_ms(20)
 
     def sleep(self):
         """슬립 모드로 전환"""
