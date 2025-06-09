@@ -84,11 +84,11 @@ class DPS310:
         # 소프트 리셋 수행
         self._reset()
 
-        # 기본 설정: 일반 모드
-        self.set_normal_mode()
-
         # 보정 계수 읽기
         self._read_calibration()
+
+        # 기본 설정: 일반 모드
+        self.set_normal_mode()
 
     def _read_byte(self, register):
         """레지스터에서 1바이트 읽기"""
@@ -106,15 +106,15 @@ class DPS310:
     def _reset(self):
         """소프트 리셋 수행"""
         self._write_byte(_DPS310_RESET, 0x89)
-        time.sleep_ms(300)  # 리셋 후 대기
+        # time.sleep_ms(200)  # 리셋 후 대기
 
     def _read_calibration(self):
         """보정 계수 읽기"""
         while True:
             status = self._read_byte(_DPS310_MEAS_CFG)
-            if status & (_DPS310_SENSOR_RDY | _DPS310_COEF_RDY):
+            if (status & _DPS310_SENSOR_RDY) and (status & _DPS310_COEF_RDY):
                 break
-            time.sleep_ms(10)
+            time.sleep_ms(5)
         # 보정 계수 블록 읽기 (18바이트)
         coef_data = self._read_bytes(_DPS310_COEF, 18)
 

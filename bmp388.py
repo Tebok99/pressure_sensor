@@ -112,10 +112,10 @@ class BMP388:
         # 소프트 리셋 및 초기화
         self._reset()
 
+        self._read_calibration_data()
+
         # 기본 설정: 일반 모드
         self.set_normal_mode()
-        
-        self._read_calibration_data()
 
     def _read_byte(self, register):
         """레지스터에서 1바이트 읽기"""
@@ -133,10 +133,13 @@ class BMP388:
     def _reset(self):
         """소프트 리셋 수행"""
         self._write_byte(_BMP388_CMD, _BMP388_CMD_SOFTRESET)
-        time.sleep_ms(500)  # 리셋 후 대기
+        # time.sleep_ms(200)  # 리셋 후 대기
 
     def _read_calibration_data(self):
         """보정 데이터 읽기"""
+        while self.is_measuring():
+            time.sleep_ms(5)
+
         # BMP388 보정 데이터 읽기 (총 21바이트)
         calib_data = self._read_bytes(_BMP388_CALIB_DATA, 21)
         if len(calib_data) != 21:
@@ -253,12 +256,15 @@ class BMP388:
 
     def is_measuring(self):
         """측정 중인지 확인"""
+        return not (self._read_byte(_BMP388_STATUS) & 0x10)  # 압력 또는 온도 변환 중인지 확인
+
+    def is_data_ready(self):
         status = self._read_byte(_BMP388_STATUS)
-        return not (status & 0x10) or not ((status & _BMP388_DRDY_TEMP) or (status & _BMP388_DRDY_PRESS))  # 압력 또는 온도 변환 중인지 확인
+        return (status & _BMP388_DRDY_TEMP) and (status & _BMP388_DRDY_PRESS)
 
     def read_raw_data(self):
         timeout = 100   # 최대 100번 반복
-        while self.is_measuring() and timeout > 0:
+        while self.is_measuring() and not self.is_data_ready() and timeout > 0:
             time.sleep_ms(10)
             timeout -= 1
         if timeout == 0:
