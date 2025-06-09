@@ -133,7 +133,7 @@ class BMP388:
     def _reset(self):
         """소프트 리셋 수행"""
         self._write_byte(_BMP388_CMD, _BMP388_CMD_SOFTRESET)
-        # time.sleep_ms(200)  # 리셋 후 대기
+        time.sleep_ms(200)  # 리셋 후 대기
 
     def _read_calibration_data(self):
         """보정 데이터 읽기"""
@@ -220,7 +220,7 @@ class BMP388:
         # 전력 모드 설정 (일반 모드)
         self._write_byte(_BMP388_PWR_CTRL, _BMP388_POWER_NORMAL)
 
-        time.sleep_ms(100)
+        time.sleep_ms(10)
 
     def set_normal_mode(self):
         """일반 모드 설정
@@ -241,7 +241,7 @@ class BMP388:
         # 전력 모드 설정 (일반 모드)
         self._write_byte(_BMP388_PWR_CTRL, _BMP388_POWER_NORMAL)
 
-        time.sleep_ms(100)
+        time.sleep_ms(10)
 
     def sleep(self):
         """슬립 모드로 전환"""
@@ -252,7 +252,7 @@ class BMP388:
         self._write_byte(_BMP388_PWR_CTRL, _BMP388_POWER_FORCED)
 
         while self.is_measuring():
-            time.sleep_ms(10)
+            time.sleep_ms(5)
 
     def is_measuring(self):
         """측정 중인지 확인"""
@@ -265,7 +265,7 @@ class BMP388:
     def read_raw_data(self):
         timeout = 100   # 최대 100번 반복
         while self.is_measuring() and not self.is_data_ready() and timeout > 0:
-            time.sleep_ms(10)
+            time.sleep_ms(5)
             timeout -= 1
         if timeout == 0:
             raise RuntimeError("Sensor measurement timed out.")

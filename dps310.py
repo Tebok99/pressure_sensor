@@ -106,7 +106,7 @@ class DPS310:
     def _reset(self):
         """소프트 리셋 수행"""
         self._write_byte(_DPS310_RESET, 0x89)
-        # time.sleep_ms(200)  # 리셋 후 대기
+        time.sleep_ms(200)  # 리셋 후 대기
 
     def _read_calibration(self):
         """보정 계수 읽기"""
@@ -184,7 +184,7 @@ class DPS310:
         self.press_scale = 524288.0  # 1x 오버샘플링
 
         # 대기
-        time.sleep_ms(50)
+        time.sleep_ms(10)
 
     def set_normal_mode(self):
         """일반 모드 설정
@@ -204,15 +204,15 @@ class DPS310:
         self.temp_scale = 253952.0  # 16x 오버샘플링
         self.press_scale = 1040384.0  # 64x 오버샘플링
         # 대기
-        time.sleep_ms(50)
+        time.sleep_ms(10)
 
     def read_raw_pressure(self):
         """원시 압력 데이터 읽기"""
         while True:
-            status = self._read_byte(_DPS310_MEAS_CFG)
-            if status & _DPS310_PRS_RDY:
+            if self._read_byte(_DPS310_MEAS_CFG) & _DPS310_PRS_RDY:
                 break
-            time.sleep_ms(10)
+            time.sleep_ms(5)
+
         data = self._read_bytes(_DPS310_PRS_B2, 3)
         raw_pressure = (data[0] << 16) | (data[1] << 8) | data[2]
         if raw_pressure & 0x800000:  # 음수 처리
@@ -222,10 +222,10 @@ class DPS310:
     def read_raw_temperature(self):
         """원시 온도 데이터 읽기"""
         while True:
-            status = self._read_byte(_DPS310_MEAS_CFG)
-            if status & _DPS310_TMP_RDY:
+            if self._read_byte(_DPS310_MEAS_CFG) & _DPS310_TMP_RDY:
                 break
-            time.sleep_ms(10)
+            time.sleep_ms(5)
+
         data = self._read_bytes(_DPS310_TMP_B2, 3)
         raw_temperature = (data[0] << 16) | (data[1] << 8) | data[2]
         if raw_temperature & 0x800000:  # 음수 처리

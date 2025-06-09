@@ -101,13 +101,12 @@ class BMP280:
     def _reset(self):
         """센서 리셋"""
         self._write_byte(_BMP280_RESET, 0xB6)
-        time.sleep_ms(100)  # 리셋 후 대기
+        time.sleep_ms(200)  # 리셋 후 대기
 
     def _read_coefficients(self):
         """보정 계수 읽기"""
         while True:
-            status = self._read_signed_word(_BMP280_STATUS)
-            if status == 0:
+            if self._read_signed_word(_BMP280_STATUS) == 0:
                 break
             time.sleep_ms(5)
         self.dig_T1 = self._read_word(_BMP280_DIG_T1)
@@ -134,6 +133,8 @@ class BMP280:
         self._write_byte(_BMP280_CONFIG, (_BMP280_STANDBY_1000 << 5) | (_BMP280_IIR_FILTER_OFF << 2))
         self._write_byte(_BMP280_CTRL_MEAS, (_BMP280_OS_1X << 5) | (_BMP280_OS_1X << 2) | _BMP280_POWER_NORMAL)
 
+        time.sleep_ms(10)
+
     def set_normal_mode(self):
         """일반 모드 설정
         - 온도: 2x 오버샘플링
@@ -143,6 +144,8 @@ class BMP280:
         """
         self._write_byte(_BMP280_CONFIG, (_BMP280_STANDBY_0_5 << 5) | (_BMP280_IIR_FILTER_4 << 2))
         self._write_byte(_BMP280_CTRL_MEAS, (_BMP280_OS_16X << 5) | (_BMP280_OS_2X << 2) | _BMP280_POWER_NORMAL)
+
+        time.sleep_ms(10)
 
     def sleep(self):
         """슬립 모드로 전환"""
