@@ -261,7 +261,7 @@ class BMP388:
             time.sleep_ms(10)
             timeout -= 1
         if timeout == 0:
-            raise TimeoutError("Sensor measurement timed out.")
+            raise RuntimeError("Sensor measurement timed out.")
 
         data = self._read_bytes(_BMP388_DATA_0, 6)
         if len(data) != 6:
