@@ -180,7 +180,7 @@ class BMP388:
             self.P11 -= 256
 
         # 보정 계수 스케일링 (데이터시트 9.1)
-        self.par_t1 = float(self.T1) * 256
+        self.par_t1 = float(self.T1) * 256.0
         self.par_t2 = float(self.T2) / (1 << 30)
         self.par_t3 = float(self.T3) / (1 << 48)
         self.par_p1 = (float(self.P1) - 16384.0) / (1 << 20)
@@ -246,12 +246,21 @@ class BMP388:
 
     def is_measuring(self):
         """측정 중인지 확인"""
-        return self._read_byte(_BMP388_STATUS) < (_BMP388_DRDY_PRESS | _BMP388_DRDY_TEMP)  # 압력 또는 온도 변환 중인지 확인
+        status = self._read_byte(_BMP388_STATUS)
+        return not (status & 0x10) or not ((status & _BMP388_DRDY_TEMP) and (status & _BMP388_DRDY_PRESS))  # 압력 또는 온도 변환 중인지 확인
 
     def read_raw_data(self):
-        while self.is_measuring():
+        timeout = 100   # 최대 100번 반복
+        while self.is_measuring() and timeout > 0:
             time.sleep_ms(10)
+            timeout -= 1
+        if timeout == 0:
+            raise TimeoutError("Sensor measurement timed out.")
+
         data = self._read_bytes(_BMP388_DATA_0, 6)
+        if len(data) != 6:
+            raise ValueError("Sensor data read failed.")
+
         # 압력 데이터 조합 (리틀 엔디언)
         raw_pressure = (data[2] << 16) | (data[1] << 8) | data[0]
         if raw_pressure & 0x800000:
@@ -264,8 +273,8 @@ class BMP388:
 
     def compensate_temperature(self, raw_temp):
         """온도 보정 계산 (데이터시트 9.2)"""
-        partial_data1 = float(raw_temp - self.par_t1)
-        partial_data2 = float(partial_data1 * self.par_t2)
+        partial_data1 = float(raw_temp) - self.par_t1
+        partial_data2 = partial_data1 * self.par_t2
         t_lin = partial_data2 + (partial_data1 * partial_data1) * self.par_t3
         return t_lin  # 섭씨 온도 (°C)
 
