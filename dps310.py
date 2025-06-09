@@ -172,7 +172,7 @@ class DPS310:
         - 백그라운드 모드
         """
         # 온도 설정: 1x 오버샘플링, 1Hz
-        self._write_byte(_DPS310_TMP_CFG, 0x000 | _DPS310_RATE_1_HZ | _DPS310_OSR_1)
+        self._write_byte(_DPS310_TMP_CFG, _DPS310_RATE_1_HZ | _DPS310_OSR_1)
 
         # 압력 설정: 1x 오버샘플링, 1Hz
         self._write_byte(_DPS310_PRS_CFG, _DPS310_RATE_1_HZ | _DPS310_OSR_1)
@@ -193,7 +193,7 @@ class DPS310:
         - 백그라운드 모드
         """
         # 온도 설정: 16x 오버샘플링, 8Hz
-        self._write_byte(_DPS310_TMP_CFG, 0x000 | _DPS310_RATE_8_HZ | _DPS310_OSR_16)
+        self._write_byte(_DPS310_TMP_CFG, _DPS310_RATE_8_HZ | _DPS310_OSR_16)
 
         # 압력 설정: 64x 오버샘플링, 8Hz
         self._write_byte(_DPS310_PRS_CFG, _DPS310_RATE_8_HZ | _DPS310_OSR_64)
@@ -209,7 +209,8 @@ class DPS310:
     def read_raw_pressure(self):
         """원시 압력 데이터 읽기"""
         while True:
-            if self._read_byte(_DPS310_MEAS_CFG) & _DPS310_PRS_RDY:
+            status = self._read_byte(_DPS310_MEAS_CFG)
+            if (status & _DPS310_SENSOR_RDY) and (status & _DPS310_PRS_RDY):
                 break
             time.sleep_ms(5)
 
@@ -222,7 +223,8 @@ class DPS310:
     def read_raw_temperature(self):
         """원시 온도 데이터 읽기"""
         while True:
-            if self._read_byte(_DPS310_MEAS_CFG) & _DPS310_TMP_RDY:
+            status = self._read_byte(_DPS310_MEAS_CFG)
+            if (status & _DPS310_SENSOR_RDY) and (status & _DPS310_TMP_RDY):
                 break
             time.sleep_ms(5)
 
@@ -260,7 +262,7 @@ class DPS310:
     def pressure(self):
         """보정된 기압 읽기 (hPa)"""
         raw_temp = self.read_raw_temperature()
-        temp_comp = self.compensate_temperature(raw_temp)
+        scaled_temp = float(raw_temp) / self.temp_scale
         raw_pressure = self.read_raw_pressure()
-        pressure = self.compensate_pressure(raw_pressure, temp_comp)
+        pressure = self.compensate_pressure(raw_pressure, scaled_temp)
         return pressure / 100.0  # Pa -> hPa
