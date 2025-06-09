@@ -253,7 +253,7 @@ class BMP388:
     def is_measuring(self):
         """측정 중인지 확인"""
         status = self._read_byte(_BMP388_STATUS)
-        return not (status & 0x10) or not ((status & _BMP388_DRDY_TEMP) and (status & _BMP388_DRDY_PRESS))  # 압력 또는 온도 변환 중인지 확인
+        return not (status & 0x10) or not ((status & _BMP388_DRDY_TEMP) or (status & _BMP388_DRDY_PRESS))  # 압력 또는 온도 변환 중인지 확인
 
     def read_raw_data(self):
         timeout = 100   # 최대 100번 반복
