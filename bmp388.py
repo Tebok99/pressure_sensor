@@ -111,10 +111,11 @@ class BMP388:
 
         # 소프트 리셋 및 초기화
         self._reset()
-        self._read_calibration_data()
 
         # 기본 설정: 일반 모드
         self.set_normal_mode()
+        
+        self._read_calibration_data()
 
     def _read_byte(self, register):
         """레지스터에서 1바이트 읽기"""

@@ -84,11 +84,11 @@ class DPS310:
         # 소프트 리셋 수행
         self._reset()
 
-        # 보정 계수 읽기
-        self._read_calibration()
-
         # 기본 설정: 일반 모드
         self.set_normal_mode()
+
+        # 보정 계수 읽기
+        self._read_calibration()
 
     def _read_byte(self, register):
         """레지스터에서 1바이트 읽기"""
