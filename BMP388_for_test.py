@@ -190,12 +190,21 @@ modes = {
 for mode in modes.keys():
     osr_value = modes[mode]['osr_value']
     pwr_ctrl = modes[mode]['pwr_ctrl']
+    logs.append(f"Switching to mode: {mode}")
+
     # OSR 설정
     perform_action("Set OSR", lambda: i2c.writeto_mem(ADDRESS, REG_OSR, bytes([osr_value])), logs)
     time.sleep_ms(50)
+    if mode == 'sleep_mode':
+        logs.append(f"Mode: {mode} - Sensor is in sleep mode, no measurements taken.")
+        continue
+    if mode == 'normal':
+        perform_action("Set to normal mode", lambda: i2c.writeto_mem(ADDRESS, REG_PWR_CTRL, bytes([pwr_ctrl])), logs)
+        time.sleep_ms(50)
     for i in range(10):
-        # 측정 시작
-        perform_action("Start measurement", lambda: i2c.writeto_mem(ADDRESS, REG_PWR_CTRL, bytes([pwr_ctrl])), logs)
+        # 'low power mode' 측정 시작
+        if mode == 'low_power':
+            perform_action("Start measurement", lambda: i2c.writeto_mem(ADDRESS, REG_PWR_CTRL, bytes([pwr_ctrl])), logs)
         # 측정 대기
         success = wait_for_measurement(i2c, ADDRESS, logs)
         if not success:
@@ -236,6 +245,9 @@ for mode in modes.keys():
         # 결과 출력
         logs.append(f"Mode: {mode}, Measurement {i+1}: Temp = {t_lin:.2f} ℃, Press = {comp_press:.2f} Pa")
         print(f"Mode: {mode}, Measurement {i+1}: Temp = {t_lin:.2f} ℃, Press = {comp_press:.2f} Pa")
+
+        if mode == 'normal':
+            time.sleep_ms(40)  # Wait for next measurement at 25Hz
 
 # 로그 파일 작성
 try:
