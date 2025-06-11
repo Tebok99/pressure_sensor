@@ -46,14 +46,15 @@ time.sleep_ms(10)
 
 # 보정 데이터 읽기
 def read_calibration(i2c, address):
+    global logs
     start_time = time.ticks_ms()
     try:
         calib_data = i2c.readfrom_mem(address, CALIB_START, CALIB_LEN)
         # 보정 계수 파싱
         t1 = (calib_data[1] << 8) | calib_data[0]
         t2 = (calib_data[3] << 8) | calib_data[2]
-        if t2 & 0x8000:
-            t2 -= 0x10000   # datasheet와 다름 (삭제 필요)
+        # if t2 & 0x8000:
+        #     t2 -= 0x10000   # datasheet와 다름 (삭제 필요)
         t3 = calib_data[4]
         if t3 & 0x80:
             t3 -= 0x100
@@ -172,7 +173,7 @@ def wait_for_measurement(i2c, address, logs):
             if time.ticks_diff(time.ticks_ms(), start_time) > timeout:
                 logs.append("Wait for measurement: timeout")
                 return False
-            time.sleep_ms(10)
+            time.sleep_ms(1)
         except Exception as e:
             logs.append(f"Wait for measurement: failed with {e}")
             return False
@@ -189,7 +190,6 @@ modes = {
 # 각 모드에서 측정 수행
 for mode in ['low_power', 'normal']:
     osr_value = modes[mode]['osr_value']
-    logs = []
     # OSR 설정
     perform_action("Set OSR", lambda: i2c.writeto_mem(ADDRESS, REG_OSR, bytes([osr_value])), logs)
     for i in range(10):
@@ -233,6 +233,7 @@ for mode in ['low_power', 'normal']:
         if not success:
             continue
         # 결과 출력
+        logs.append(f"Mode: {mode}, Measurement {i+1}: Temp = {t_lin:.2f} ℃, Press = {comp_press:.2f} Pa")
         print(f"Mode: {mode}, Measurement {i+1}: Temp = {t_lin:.2f} ℃, Press = {comp_press:.2f} Pa")
     # 로그 파일 작성
     try:
