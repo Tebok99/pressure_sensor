@@ -233,7 +233,7 @@ for mode in ['low_power', 'normal']:
         if not success:
             continue
         # 결과 출력
-        print(f"Mode: {mode}, Measurement {i+1}: Temp = {t_lin:.2f} C, Press = {comp_press:.2f} hPa")
+        print(f"Mode: {mode}, Measurement {i+1}: Temp = {t_lin:.2f} ℃, Press = {comp_press:.2f} Pa")
     # 로그 파일 작성
     try:
         with open(f"{mode}_log.txt", "w") as f:
