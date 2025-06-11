@@ -237,7 +237,7 @@ for mode in ['low_power', 'normal']:
     time.sleep_ms(20)
 
     if mode == 'normal':
-        i2c.writeto_mem(ADDRESS, 0x1D, '0x02')
+        i2c.writeto_mem(ADDRESS, 0x1D, '0x002')
         perform_action("Set to normal mode", lambda: i2c.writeto_mem(ADDRESS, REG_PWR_CTRL, bytes([pwr_ctrl])), logs)
         time.sleep_ms(20)
 
