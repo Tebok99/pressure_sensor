@@ -53,8 +53,6 @@ def read_calibration(i2c, address):
         # 보정 계수 파싱
         t1 = (calib_data[1] << 8) | calib_data[0]
         t2 = (calib_data[3] << 8) | calib_data[2]
-        # if t2 & 0x8000:
-        #     t2 -= 0x10000   # datasheet와 다름 (삭제 필요)
         t3 = calib_data[4]
         if t3 & 0x80:
             t3 -= 0x100
@@ -164,7 +162,7 @@ def perform_action(action_name, func, logs):
 # 측정 대기
 def wait_for_measurement(i2c, address, logs):
     start_time = time.ticks_ms()
-    timeout = 1000
+    timeout = 1000  # 1 second
     while True:
         try:
             status = i2c.readfrom_mem(address, REG_STATUS, 1)[0]

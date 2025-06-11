@@ -10,6 +10,13 @@ def main():
     mgr.dps310.set_normal_mode()
     mgr.bmp388.set_normal_mode()
 
+    # 센서 매핑 딕셔너리
+    sensor_map = {
+        'BMP280': mgr.bmp280,
+        'DPS310': mgr.dps310,
+        'BMP388': mgr.bmp388
+    }
+
     # 모드별 주기 결정
     mode = 'normal'
     periods = SensorManager.MODES[mode]
@@ -22,12 +29,7 @@ def main():
             for name, period in periods.items():
                 # 센서별로 주기에 따라 측정
                 if time.ticks_diff(now, last_time[name]) >= int(period * 1000):
-                    if name == 'BMP280':
-                        vals[name] = mgr.bmp280.pressure
-                    elif name == 'DPS310':
-                        vals[name] = mgr.dps310.pressure
-                    elif name == 'BMP388':
-                        vals[name] = mgr.bmp388.pressure
+                    vals[name] = sensor_map.get(name).pressure
                     last_time[name] = now
 
             ts = mgr.format_timestamp()
