@@ -2,7 +2,7 @@ from machine import I2C, Pin
 import time
 
 # 상수 정의
-ADDRESS = 0x76
+ADDRESS = 0x77
 REG_CHIP_ID = 0x00
 REG_CMD = 0x7E
 REG_OSR = 0x1C
@@ -13,7 +13,7 @@ CALIB_START = 0x31
 CALIB_LEN = 21
 
 # I2C 설정
-i2c = I2C(0, scl=Pin(1), sda=Pin(0), freq=400000)
+i2c = I2C(1, scl=Pin(6), sda=Pin(7), freq=400000)
 
 # CHIP_ID 확인
 logs = []
@@ -53,7 +53,7 @@ def read_calibration(i2c, address):
         t1 = (calib_data[1] << 8) | calib_data[0]
         t2 = (calib_data[3] << 8) | calib_data[2]
         if t2 & 0x8000:
-            t2 -= 0x10000
+            t2 -= 0x10000   # datasheet와 다름 (삭제 필요)
         t3 = calib_data[4]
         if t3 & 0x80:
             t3 -= 0x100
