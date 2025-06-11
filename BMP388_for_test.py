@@ -181,19 +181,20 @@ def wait_for_measurement(i2c, address, logs):
 
 # 모드 정의
 modes = {
-    'low_power': {'osr_value': 0},  # osr_p=x1, osr_t=x1
-    'normal': {'osr_value': (1 << 3) | 4}  # osr_t=x2, osr_p=x16
+    'low_power': {'osr_value': 0, 'pwr_ctrl': (1 << 4 | 3)},  # osr_p=x1, osr_t=x1
+    'normal': {'osr_value': (1 << 3) | 4, 'pwr_ctrl': (3 << 4 | 3)}  # osr_t=x2, osr_p=x16
 }
 
 # 각 모드에서 측정 수행
 for mode in ['low_power', 'normal']:
     osr_value = modes[mode]['osr_value']
+    pwr_ctrl = modes[mode]['pwr_ctrl']
     # OSR 설정
     perform_action("Set OSR", lambda: i2c.writeto_mem(ADDRESS, REG_OSR, bytes([osr_value])), logs)
     time.sleep_ms(50)
     for i in range(10):
         # 측정 시작
-        perform_action("Start measurement", lambda: i2c.writeto_mem(ADDRESS, REG_PWR_CTRL, b'\x13'), logs)
+        perform_action("Start measurement", lambda: i2c.writeto_mem(ADDRESS, REG_PWR_CTRL, bytes([pwr_ctrl])), logs)
         # 측정 대기
         success = wait_for_measurement(i2c, ADDRESS, logs)
         if not success:
