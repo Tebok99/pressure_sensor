@@ -41,3 +41,17 @@ class SensorManager:
         t = time.localtime()
         ms = time.ticks_ms() % 1000
         return f"{t[3]:02d}:{t[4]:02d}:{t[5]:02d}:{ms:03d}"
+
+    # 센서별/모드별 권장 측정 주기 (초 단위)
+    MODES = {
+        'low_power': {
+            'BMP280': 1.0,
+            'DPS310': 1.0,
+            'BMP388': 1.0,
+        },
+        'normal': {
+            'BMP280': 0.2,
+            'DPS310': 0.13,
+            'BMP388': 0.05,
+        }
+    }
