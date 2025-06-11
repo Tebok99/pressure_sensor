@@ -166,7 +166,7 @@ def wait_for_measurement(i2c, address, logs):
     while True:
         try:
             status = i2c.readfrom_mem(address, REG_STATUS, 1)[0]
-            if (status & 0x70) == 0x70:
+            if (status & 0x60) == 0x60:
                 break
             if time.ticks_diff(time.ticks_ms(), start_time) > timeout:
                 logs.append("Wait for measurement: timeout")
