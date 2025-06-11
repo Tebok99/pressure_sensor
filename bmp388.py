@@ -137,9 +137,6 @@ class BMP388:
 
     def _read_calibration_data(self):
         """보정 데이터 읽기"""
-        while self.is_measuring():
-            time.sleep_ms(5)
-
         # BMP388 보정 데이터 읽기 (총 21바이트)
         calib_data = self._read_bytes(_BMP388_CALIB_DATA, 21)
         if len(calib_data) != 21:
