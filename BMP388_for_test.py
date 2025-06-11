@@ -238,22 +238,20 @@ for mode in ['low_power', 'normal']:
 
     if mode == 'normal':
         i2c.writeto_mem(ADDRESS, 0x1D, '0x02')
-        perform_action("Set to normal mode", lambda: i2c.writeto_mem(ADDRESS, REG_PWR_CTRL, bytes([pwr_ctrl])), logs)
         time.sleep_ms(20)
-
         for i in range(10):
+            perform_action("Set to normal mode", lambda: i2c.writeto_mem(ADDRESS, REG_PWR_CTRL, bytes([pwr_ctrl])),
+                           logs)
             # 측정 대기
             success = wait_for_measurement(i2c, ADDRESS, logs)
             if not success:
                 continue
             read_data()
             time.sleep_ms(20)  # Wait for next measurement at 50Hz
-    else:
+    else:   # 'low power mode' 측정 시작
         logs.append("Set to low power mode")
         for i in range(10):
-            # 'low power mode' 측정 시작
-            if mode == 'low_power':
-                perform_action("Start measurement", lambda: i2c.writeto_mem(ADDRESS, REG_PWR_CTRL, bytes([pwr_ctrl])), logs)
+            perform_action("Start measurement", lambda: i2c.writeto_mem(ADDRESS, REG_PWR_CTRL, bytes([pwr_ctrl])), logs)
             # 측정 대기
             success = wait_for_measurement(i2c, ADDRESS, logs)
             if not success:
