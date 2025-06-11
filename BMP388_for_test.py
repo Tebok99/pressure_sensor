@@ -230,14 +230,15 @@ for mode in ['low_power', 'normal']:
     osr_value = modes[mode]['osr_value']
     pwr_ctrl = modes[mode]['pwr_ctrl']
 
-    perform_action("Set to sleep mode", lambda: i2c.writeto_mem(ADDRESS, REG_PWR_CTRL, b'/0'), logs)
+    perform_action("Set to sleep mode", lambda: i2c.writeto_mem(ADDRESS, REG_PWR_CTRL, b'\x00'), logs)
 
     # OSR 설정
     perform_action("Set OSR", lambda: i2c.writeto_mem(ADDRESS, REG_OSR, bytes([osr_value])), logs)
     time.sleep_ms(20)
 
     if mode == 'normal':
-        i2c.writeto_mem(ADDRESS, 0x1D, '0x02')
+        i2c.writeto_mem(ADDRESS, 0x1D, b'\x02')
+
         time.sleep_ms(20)
         for i in range(10):
             perform_action("Set to normal mode", lambda: i2c.writeto_mem(ADDRESS, REG_PWR_CTRL, bytes([pwr_ctrl])),
