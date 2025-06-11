@@ -182,25 +182,25 @@ def wait_for_measurement(i2c, address, logs):
 # 모드 정의
 modes = {
     'low_power': {'osr_value': 0, 'pwr_ctrl': (1 << 4) | 3},  # osr_p=x1, osr_t=x1, forced mode
-    'sleep_mode': {'osr_value': 0, 'pwr_ctrl': 0},  # osr_p=x1, osr_t=x1, sleep mode
     'normal': {'osr_value': (1 << 3) | 4, 'pwr_ctrl': (3 << 4) | 3}  # osr_t=x2, osr_p=x16, normal mode
 }
 
 # 각 모드에서 측정 수행
-for mode in modes.keys():
+for mode in ['low_power', 'normal']:
     osr_value = modes[mode]['osr_value']
     pwr_ctrl = modes[mode]['pwr_ctrl']
-    logs.append(f"Switching to mode: {mode}")
+
+    perform_action("Set to sleep mode", lambda: i2c.writeto_mem(ADDRESS, REG_PWR_CTRL, b'/0'), logs)
 
     # OSR 설정
     perform_action("Set OSR", lambda: i2c.writeto_mem(ADDRESS, REG_OSR, bytes([osr_value])), logs)
     time.sleep_ms(50)
-    if mode == 'sleep_mode':
-        logs.append(f"Mode: {mode} - Sensor is in sleep mode, no measurements taken.")
-        continue
+
     if mode == 'normal':
         perform_action("Set to normal mode", lambda: i2c.writeto_mem(ADDRESS, REG_PWR_CTRL, bytes([pwr_ctrl])), logs)
         time.sleep_ms(50)
+    else:
+        logs.append("Set to low power mode")
     for i in range(10):
         # 'low power mode' 측정 시작
         if mode == 'low_power':
