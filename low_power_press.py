@@ -37,7 +37,7 @@ def main():
                 if value is not None:
                     altitude = mgr.calculate_altitude(value)
                     print(f"['{name}', '{value:.2f}hPa', '{altitude:.2f}m']")
-                print("=" * 50)
+            print("=" * 50)
 
             time.sleep_ms(10)
 
