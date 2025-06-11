@@ -181,12 +181,13 @@ def wait_for_measurement(i2c, address, logs):
 
 # 모드 정의
 modes = {
-    'low_power': {'osr_value': 0, 'pwr_ctrl': (1 << 4 | 3)},  # osr_p=x1, osr_t=x1
-    'normal': {'osr_value': (1 << 3) | 4, 'pwr_ctrl': (3 << 4 | 3)}  # osr_t=x2, osr_p=x16
+    'low_power': {'osr_value': 0, 'pwr_ctrl': (1 << 4) | 3},  # osr_p=x1, osr_t=x1, forced mode
+    'sleep_mode': {'osr_value': 0, 'pwr_ctrl': 0},  # osr_p=x1, osr_t=x1, sleep mode
+    'normal': {'osr_value': (1 << 3) | 4, 'pwr_ctrl': (3 << 4) | 3}  # osr_t=x2, osr_p=x16, normal mode
 }
 
 # 각 모드에서 측정 수행
-for mode in ['low_power', 'normal']:
+for mode in modes.keys():
     osr_value = modes[mode]['osr_value']
     pwr_ctrl = modes[mode]['pwr_ctrl']
     # OSR 설정
