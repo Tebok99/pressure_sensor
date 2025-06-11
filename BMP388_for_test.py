@@ -6,6 +6,8 @@ ADDRESS = 0x77
 REG_CHIP_ID = 0x00
 REG_CMD = 0x7E
 REG_OSR = 0x1C
+REG_ODR = 0x1D
+REG_IIR = 0x1F
 REG_PWR_CTRL = 0x1B
 REG_STATUS = 0x03
 REG_DATA = 0x04
@@ -237,12 +239,11 @@ for mode in ['low_power', 'normal']:
     time.sleep_ms(20)
 
     if mode == 'normal':
-        i2c.writeto_mem(ADDRESS, 0x1D, b'\x02')
-
+        i2c.writeto_mem(ADDRESS, REG_ODR, b'\x02')
+        i2c.writeto_mem(ADDRESS, REG_IIR, b'\x04')
+        perform_action("Set to normal mode", lambda: i2c.writeto_mem(ADDRESS, REG_PWR_CTRL, bytes([pwr_ctrl])), logs)
         time.sleep_ms(20)
         for i in range(10):
-            perform_action("Set to normal mode", lambda: i2c.writeto_mem(ADDRESS, REG_PWR_CTRL, bytes([pwr_ctrl])),
-                           logs)
             # 측정 대기
             success = wait_for_measurement(i2c, ADDRESS, logs)
             if not success:
