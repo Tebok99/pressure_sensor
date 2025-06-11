@@ -13,7 +13,7 @@ CALIB_START = 0x31
 CALIB_LEN = 21
 
 # I2C 설정
-i2c = I2C(1, scl=Pin(6), sda=Pin(7), freq=400000)
+i2c = I2C(1, sda=Pin(6), scl=Pin(7), freq=400000)
 
 # CHIP_ID 확인
 logs = []
