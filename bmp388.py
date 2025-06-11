@@ -263,7 +263,7 @@ class BMP388:
         return (status & _BMP388_DRDY_TEMP) and (status & _BMP388_DRDY_PRESS)
 
     def read_raw_data(self):
-        timeout = 100   # 최대 100번 반복
+        timeout = 200   # 최대 200번 반복
         while self.is_measuring() and not self.is_data_ready() and timeout > 0:
             time.sleep_ms(5)
             timeout -= 1
