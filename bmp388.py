@@ -276,12 +276,10 @@ class BMP388:
 
         # 압력 데이터 조합 (리틀 엔디언)
         raw_pressure = (data[2] << 16) | (data[1] << 8) | data[0]
-        if raw_pressure & 0x800000:
-            raw_pressure -= 0x1000000
+
         # 온도 데이터 조합 (리틀 엔디언)
         raw_temperature = (data[5] << 16) | (data[4] << 8) | data[3]
-        if raw_temperature & 0x800000:
-            raw_temperature -= 0x1000000
+
         return raw_pressure, raw_temperature
 
     def compensate_temperature(self, raw_temp):
