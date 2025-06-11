@@ -179,6 +179,46 @@ def wait_for_measurement(i2c, address, logs):
     logs.append(f"Wait for measurement: time={time.ticks_diff(end_time, start_time)}ms, success=True")
     return True
 
+# 데이터 처리
+def read_data():
+    # 원시 데이터 읽기
+    raw_data, success = perform_action("Read raw data", lambda: i2c.readfrom_mem(ADDRESS, REG_DATA, 6), logs)
+    if not success:
+        return None
+    # 원시 기압 및 온도 추출
+    raw_press = raw_data[0] | (raw_data[1] << 8) | (raw_data[2] << 16)
+    raw_temp = raw_data[3] | (raw_data[4] << 8) | (raw_data[5] << 16)
+    # 온도 보정
+    start_time = time.ticks_ms()
+    try:
+        t_lin = compensate_temperature(raw_temp, cal)
+        success = True
+    except Exception as e:
+        t_lin = None
+        success = False
+        logs.append(f"Compensate temperature: failed with {e}")
+    end_time = time.ticks_ms()
+    logs.append(f"Compensate temperature: time={time.ticks_diff(end_time, start_time)}ms, success={success}")
+    if not success:
+        return None
+    # 기압 보정
+    start_time = time.ticks_ms()
+    try:
+        comp_press = compensate_pressure(raw_press, t_lin, cal)
+        success = True
+    except Exception as e:
+        comp_press = None
+        success = False
+        logs.append(f"Compensate pressure: failed with {e}")
+    end_time = time.ticks_ms()
+    logs.append(f"Compensate pressure: time={time.ticks_diff(end_time, start_time)}ms, success={success}")
+    if not success:
+        return None
+    # 결과 출력
+    logs.append(f"Mode: {mode}, Measurement {i + 1}: Temp = {t_lin:.2f} ℃, Press = {comp_press:.2f} Pa")
+    print(f"Mode: {mode}, Measurement {i + 1}: Temp = {t_lin:.2f} ℃, Press = {comp_press:.2f} Pa")
+    return None
+
 # 모드 정의
 modes = {
     'low_power': {'osr_value': 0, 'pwr_ctrl': (1 << 4) | 3},  # osr_p=x1, osr_t=x1, forced mode
@@ -194,11 +234,16 @@ for mode in ['low_power', 'normal']:
 
     # OSR 설정
     perform_action("Set OSR", lambda: i2c.writeto_mem(ADDRESS, REG_OSR, bytes([osr_value])), logs)
-    time.sleep_ms(50)
+    time.sleep_ms(20)
 
     if mode == 'normal':
+        i2c.writeto_mem(ADDRESS, 0x1D, 0x02)
         perform_action("Set to normal mode", lambda: i2c.writeto_mem(ADDRESS, REG_PWR_CTRL, bytes([pwr_ctrl])), logs)
-        time.sleep_ms(50)
+        time.sleep_ms(20)
+
+        for i in range(10):
+            read_data()
+            time.sleep_ms(20)  # Wait for next measurement at 50Hz
     else:
         logs.append("Set to low power mode")
     for i in range(10):
@@ -209,45 +254,8 @@ for mode in ['low_power', 'normal']:
         success = wait_for_measurement(i2c, ADDRESS, logs)
         if not success:
             continue
-        # 원시 데이터 읽기
-        raw_data, success = perform_action("Read raw data", lambda: i2c.readfrom_mem(ADDRESS, REG_DATA, 6), logs)
-        if not success:
-            continue
-        # 원시 기압 및 온도 추출
-        raw_press = raw_data[0] | (raw_data[1] << 8) | (raw_data[2] << 16)
-        raw_temp = raw_data[3] | (raw_data[4] << 8) | (raw_data[5] << 16)
-        # 온도 보정
-        start_time = time.ticks_ms()
-        try:
-            t_lin = compensate_temperature(raw_temp, cal)
-            success = True
-        except Exception as e:
-            t_lin = None
-            success = False
-            logs.append(f"Compensate temperature: failed with {e}")
-        end_time = time.ticks_ms()
-        logs.append(f"Compensate temperature: time={time.ticks_diff(end_time, start_time)}ms, success={success}")
-        if not success:
-            continue
-        # 기압 보정
-        start_time = time.ticks_ms()
-        try:
-            comp_press = compensate_pressure(raw_press, t_lin, cal)
-            success = True
-        except Exception as e:
-            comp_press = None
-            success = False
-            logs.append(f"Compensate pressure: failed with {e}")
-        end_time = time.ticks_ms()
-        logs.append(f"Compensate pressure: time={time.ticks_diff(end_time, start_time)}ms, success={success}")
-        if not success:
-            continue
-        # 결과 출력
-        logs.append(f"Mode: {mode}, Measurement {i+1}: Temp = {t_lin:.2f} ℃, Press = {comp_press:.2f} Pa")
-        print(f"Mode: {mode}, Measurement {i+1}: Temp = {t_lin:.2f} ℃, Press = {comp_press:.2f} Pa")
-
-        if mode == 'normal':
-            time.sleep_ms(40)  # Wait for next measurement at 25Hz
+        read_data()
+        time.sleep_ms(100)  # Wait for next measurement after 100 ms
 
 # 로그 파일 작성
 try:
