@@ -35,16 +35,20 @@ if not success:
     raise SystemExit
 
 # 소프트 리셋
-start_time = time.ticks_ms()
-try:
-    i2c.writeto_mem(ADDRESS, REG_CMD, b'\xB6')
-    success = True
-except Exception as e:
-    success = False
-    logs.append(f"Soft reset: failed with {e}")
-end_time = time.ticks_ms()
-logs.append(f"Soft reset: time={time.ticks_diff(end_time, start_time)}ms, success={success}")
-time.sleep_ms(10)
+def soft_reset(i2c, address):
+    global logs
+    start_time = time.ticks_ms()
+    try:
+        i2c.writeto_mem(address, REG_CMD, b'\xB6')
+        success = True
+    except Exception as e:
+        success = False
+        logs.append(f"Soft reset: failed with {e}")
+    end_time = time.ticks_ms()
+    logs.append(f"Soft reset: time={time.ticks_diff(end_time, start_time)}ms, success={success}")
+    time.sleep_ms(10)
+
+soft_reset(i2c, ADDRESS)
 
 # 보정 데이터 읽기
 def read_calibration(i2c, address):
@@ -232,10 +236,11 @@ for mode in ['low_power', 'normal']:
     osr_value = modes[mode]['osr_value']
     pwr_ctrl = modes[mode]['pwr_ctrl']
 
-    perform_action("Set to sleep mode", lambda: i2c.writeto_mem(ADDRESS, REG_PWR_CTRL, b'\x00'), logs)
-
+    # perform_action("Set to sleep mode", lambda: i2c.writeto_mem(ADDRESS, REG_PWR_CTRL, b'\x00'), logs)
 
     if mode == 'normal':
+        soft_reset(i2c, ADDRESS)
+
         i2c.writeto_mem(ADDRESS, REG_ODR, b'\x02')
         i2c.writeto_mem(ADDRESS, REG_IIR, b'\x02')
         perform_action("Set OSR", lambda: i2c.writeto_mem(ADDRESS, REG_OSR, bytes([osr_value])), logs)
