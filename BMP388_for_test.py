@@ -192,6 +192,7 @@ for mode in ['low_power', 'normal']:
     osr_value = modes[mode]['osr_value']
     # OSR 설정
     perform_action("Set OSR", lambda: i2c.writeto_mem(ADDRESS, REG_OSR, bytes([osr_value])), logs)
+    time.sleep_ms(50)
     for i in range(10):
         # 측정 시작
         perform_action("Start measurement", lambda: i2c.writeto_mem(ADDRESS, REG_PWR_CTRL, b'\x13'), logs)
@@ -235,11 +236,12 @@ for mode in ['low_power', 'normal']:
         # 결과 출력
         logs.append(f"Mode: {mode}, Measurement {i+1}: Temp = {t_lin:.2f} ℃, Press = {comp_press:.2f} Pa")
         print(f"Mode: {mode}, Measurement {i+1}: Temp = {t_lin:.2f} ℃, Press = {comp_press:.2f} Pa")
-    # 로그 파일 작성
-    try:
-        with open(f"{mode}_log.txt", "w") as f:
-            for log in logs:
-                f.write(log + "\n")
-        print(f"Log file written: {mode}_log.txt")
-    except Exception as e:
-        print(f"Failed to write log file for {mode}: {e}")
+
+# 로그 파일 작성
+try:
+    with open("log.txt", "w") as f:
+        for log in logs:
+            f.write(log + "\n")
+    print("Log file written: log.txt")
+except Exception as e:
+    print(f"Failed to write log file : {e}")
