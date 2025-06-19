@@ -169,7 +169,7 @@ def perform_action(action_name, func, logs):
 # 측정 대기
 def wait_for_measurement(i2c, address, logs):
     start_time = time.ticks_ms()
-    timeout = 1000  # 1 second
+    timeout = 2000  # 2 second
     while True:
         try:
             status = i2c.readfrom_mem(address, REG_STATUS, 1)[0]
@@ -178,7 +178,7 @@ def wait_for_measurement(i2c, address, logs):
             if time.ticks_diff(time.ticks_ms(), start_time) > timeout:
                 logs.append("Wait for measurement: timeout")
                 return False
-            time.sleep_ms(1)
+            time.sleep_ms(2)
         except Exception as e:
             logs.append(f"Wait for measurement: failed with {e}")
             return False
@@ -248,7 +248,7 @@ for mode in ['low_power', 'normal']:
         perform_action("Set OSR", lambda: i2c.writeto_mem(ADDRESS, REG_OSR, bytes([osr_value])), logs)
 
         perform_action("Set to normal mode", lambda: i2c.writeto_mem(ADDRESS, REG_PWR_CTRL, bytes([pwr_ctrl])), logs)
-        time.sleep_ms(50)
+        time.sleep_ms(200)
 
         for i in range(10):
             # 측정 대기
@@ -256,7 +256,7 @@ for mode in ['low_power', 'normal']:
             if not success:
                 continue
             read_data()
-            time.sleep_ms(50)  # Wait for next measurement at 50Hz
+            time.sleep_ms(30)  # Wait for next measurement at 30Hz
     else:   # 'low power mode' 측정 시작
         logs.append("Set to low power mode")
         perform_action("Set OSR", lambda: i2c.writeto_mem(ADDRESS, REG_OSR, bytes([osr_value])), logs)
