@@ -49,6 +49,7 @@ def soft_reset(i2c, address):
     time.sleep_ms(10)
 
 soft_reset(i2c, ADDRESS)
+time.sleep_ms(10)  # 리셋 후 대기
 
 # 보정 데이터 읽기
 def read_calibration(i2c, address):
@@ -240,13 +241,14 @@ for mode in ['low_power', 'normal']:
 
     if mode == 'normal':
         soft_reset(i2c, ADDRESS)
+        time.sleep_ms(10)  # 리셋 후 대기
 
         i2c.writeto_mem(ADDRESS, REG_ODR, b'\x02')
         i2c.writeto_mem(ADDRESS, REG_IIR, b'\x02')
         perform_action("Set OSR", lambda: i2c.writeto_mem(ADDRESS, REG_OSR, bytes([osr_value])), logs)
+        time.sleep_ms(20)
 
         perform_action("Set to normal mode", lambda: i2c.writeto_mem(ADDRESS, REG_PWR_CTRL, bytes([pwr_ctrl])), logs)
-        time.sleep_ms(20)
 
         for i in range(10):
             # 측정 대기
