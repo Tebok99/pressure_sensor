@@ -15,7 +15,7 @@ CALIB_START = 0x31
 CALIB_LEN = 21
 
 # I2C 설정
-i2c = I2C(1, sda=Pin(6), scl=Pin(7), freq=400000)
+i2c = I2C(1, sda=Pin(6), scl=Pin(7), freq=100000)
 
 # CHIP_ID 확인
 logs = []
@@ -246,7 +246,7 @@ for mode in ['low_power', 'normal']:
         i2c.writeto_mem(ADDRESS, REG_IIR, b'\x08')
 
         perform_action("Set to normal mode", lambda: i2c.writeto_mem(ADDRESS, REG_PWR_CTRL, bytes([pwr_ctrl])), logs)
-        time.sleep_ms(50)
+        # time.sleep_ms(50)
 
         for i in range(10):
             # 측정 대기
@@ -254,11 +254,11 @@ for mode in ['low_power', 'normal']:
             if not success:
                 continue
             read_data()
-            time.sleep_ms(30)  # Wait for next measurement at 30Hz
+            time.sleep_ms(500)  # beyond 50ms
     else:   # 'low power mode' 측정 시작
         logs.append("Set to low power mode")
         perform_action("Set OSR", lambda: i2c.writeto_mem(ADDRESS, REG_OSR, bytes([osr_value])), logs)
-        time.sleep_ms(20)
+        # time.sleep_ms(20)
         for i in range(10):
             perform_action("Start measurement", lambda: i2c.writeto_mem(ADDRESS, REG_PWR_CTRL, bytes([pwr_ctrl])), logs)
             # 측정 대기
@@ -266,7 +266,7 @@ for mode in ['low_power', 'normal']:
             if not success:
                 continue
             read_data()
-            time.sleep_ms(100)  # Wait for next measurement after 100 ms
+            time.sleep_ms(500)  # Wait for next measurement after 100 ms
 
 # 로그 파일 작성
 try:
