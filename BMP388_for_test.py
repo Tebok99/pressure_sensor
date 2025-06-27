@@ -168,7 +168,7 @@ def perform_action(action_name, func, logs):
 # 측정 대기
 def wait_for_measurement(i2c, address, logs):
     start_time = time.ticks_ms()
-    timeout = 1000  # 2 second
+    timeout = 1000  # 1 second
     while True:
         try:
             status = i2c.readfrom_mem(address, REG_STATUS, 1)[0]

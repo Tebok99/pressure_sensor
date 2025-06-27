@@ -166,12 +166,12 @@ class BMP280:
     def read_raw_temperature(self):
         """원시 온도 데이터 읽기"""
         data = self.i2c.readfrom_mem(self.addr, _BMP280_TEMP_DATA, 3)
-        return (data[0] << 16 | data[1] << 8 | data[2]) >> 4
+        return (data[0] << 12 | data[1] << 4 | data[2]) >> 4
 
     def read_raw_pressure(self):
         """원시 압력 데이터 읽기"""
         data = self.i2c.readfrom_mem(self.addr, _BMP280_PRESS_DATA, 3)
-        return (data[0] << 16 | data[1] << 8 | data[2]) >> 4
+        return (data[0] << 12 | data[1] << 4 | data[2]) >> 4
 
     def compensate_temperature(self, adc_t):
         """온도 보정 계산 데이터시트의 보정 공식 구현"""
